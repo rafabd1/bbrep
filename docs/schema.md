@@ -69,6 +69,6 @@ reviews:
 
 ## Duplicate Policy
 
-One GitHub handle may have only one review per program. To update a review, edit the existing entry.
+One GitHub handle may have only one review per program. Issue submissions update the submitter's existing review for that program when one exists. Manual Pull Requests should edit the existing entry instead of adding another one.
 
 `reviewer.display: anonymous` hides the handle on the site, but the GitHub PR author remains the canonical dedup identity.

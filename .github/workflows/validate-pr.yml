@@ -41,6 +41,7 @@ jobs:
         env:
           BBREP_PR_AUTHOR: ${{ github.event_name == 'pull_request' && github.event.pull_request.user.login || '' }}
           BBREP_BASE_REF: origin/${{ github.base_ref || 'main' }}
+          BBREP_ALLOW_GENERATED_REVIEW_SUBMISSION: ${{ github.event_name == 'pull_request' && github.event.pull_request.user.login == 'github-actions[bot]' && startsWith(github.head_ref, 'review-submission/issue-') }}
         run: |
           set +e
           python scripts/validate.py --report validation-report.md

@@ -333,12 +333,17 @@ def changed_program_files(base_ref: str) -> list[Path]:
     except subprocess.CalledProcessError:
         output = git_output(["git", "diff", "--name-only", f"{base_ref}", "--", "data/programs"])
 
+    try:
+        untracked = git_output(["git", "ls-files", "--others", "--exclude-standard", "--", "data/programs"])
+    except subprocess.CalledProcessError:
+        untracked = ""
+
     files = []
-    for line in output.splitlines():
+    for line in [*output.splitlines(), *untracked.splitlines()]:
         rel = Path(line.strip())
         if rel.suffix.lower() in {".yml", ".yaml"}:
             files.append(ROOT / rel)
-    return sorted(files)
+    return sorted(set(files))
 
 
 def validate_pr_author(report: ValidationReport, pr_author: str, base_ref: str) -> None:
@@ -374,13 +379,19 @@ def main() -> int:
     parser.add_argument("--report", type=Path, help="Write a Markdown validation report.")
     parser.add_argument("--pr-author", default=os.getenv("BBREP_PR_AUTHOR"), help="GitHub PR author handle.")
     parser.add_argument("--base-ref", default=os.getenv("BBREP_BASE_REF", "origin/main"), help="Base git ref for PR diff checks.")
+    parser.add_argument(
+        "--allow-generated-review-submission",
+        action="store_true",
+        default=os.getenv("BBREP_ALLOW_GENERATED_REVIEW_SUBMISSION", "").lower() == "true",
+        help="Allow GitHub Actions generated review-submission PRs to contain the Issue author's review.",
+    )
     args = parser.parse_args()
 
     report = ValidationReport()
     for path in program_files():
         validate_program_file(path, report, check_urls=not args.no_url_check, timeout=args.timeout)
 
-    if args.pr_author:
+    if args.pr_author and not args.allow_generated_review_submission:
         validate_pr_author(report, args.pr_author, args.base_ref)
 
     if args.report:
