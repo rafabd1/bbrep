@@ -28,11 +28,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  padding-bottom: 72px;
-  background:
-    linear-gradient(180deg, rgba(110, 231, 216, 0.08), transparent 360px),
-    radial-gradient(circle at top right, rgba(105, 89, 255, 0.14), transparent 320px),
-    var(--bg);
+  background: var(--bg);
   color: var(--ink);
 }
 
@@ -59,8 +55,7 @@ textarea {
   top: 0;
   z-index: 10;
   border-bottom: 1px solid var(--line);
-  background: rgba(9, 13, 16, 0.86);
-  backdrop-filter: blur(16px);
+  background: var(--bg);
 }
 
 .nav {
@@ -351,6 +346,13 @@ h2 {
   color: var(--muted);
 }
 
+.submission-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 22px;
+}
+
 .generator {
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(340px, 1.1fr);
@@ -490,18 +492,12 @@ h2 {
 }
 
 .footer {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 20;
   border-top: 1px solid var(--line);
   padding: 17px 16px;
-  background: rgba(9, 13, 16, 0.92);
+  background: var(--bg);
   color: var(--muted);
   font-size: 13px;
   text-align: center;
-  backdrop-filter: blur(16px);
 }
 
 @media (max-width: 860px) {
@@ -528,10 +524,6 @@ h2 {
 }
 
 @media (max-width: 560px) {
-  body {
-    padding-bottom: 92px;
-  }
-
   .shell {
     width: min(100% - 22px, 1120px);
   }

@@ -8,6 +8,8 @@ data/programs/{platform}/{slug}.yml
 
 The path is part of the schema. `program.platform` must match `{platform}` and `program.slug` must match `{slug}`.
 
+`program.platform` can be a known platform or a custom lowercase slug.
+
 ## Program File
 
 ```yaml
@@ -47,7 +49,7 @@ reviews:
 - `hats`
 - `codehawks`
 - `self-hosted`
-- `other`
+- any custom lowercase slug, for platforms not listed yet
 
 ## Review Fields
 

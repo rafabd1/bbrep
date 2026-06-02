@@ -1,0 +1,134 @@
+name: Submit a program review
+description: Submit a structured program review without editing YAML by hand.
+title: "Review: "
+labels:
+  - review-submission
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for contributing to bbrep.
+
+        Only submit public, disclosure-safe information. Do not include private report details, bounty IDs, vulnerability payloads, internal communications, or confidential program data.
+  - type: input
+    id: program_name
+    attributes:
+      label: Program name
+      placeholder: Example Security Program
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Platform
+      description: Use a known platform such as hackerone, bugcrowd, immunefi, code4rena, or provide a custom platform slug/name.
+      placeholder: hackerone
+    validations:
+      required: true
+  - type: input
+    id: program_url
+    attributes:
+      label: Program URL
+      placeholder: https://example.com/security
+    validations:
+      required: true
+  - type: dropdown
+    id: display
+    attributes:
+      label: Display on site
+      options:
+        - github
+        - anonymous
+    validations:
+      required: true
+  - type: input
+    id: experience_date
+    attributes:
+      label: Experience month
+      description: Use YYYY-MM.
+      placeholder: "2026-06"
+    validations:
+      required: true
+  - type: dropdown
+    id: rating
+    attributes:
+      label: Overall rating
+      options:
+        - "5"
+        - "4"
+        - "3"
+        - "2"
+        - "1"
+    validations:
+      required: true
+  - type: dropdown
+    id: response_time
+    attributes:
+      label: Response time
+      options:
+        - fast
+        - medium
+        - slow
+        - ghosted
+        - unknown
+    validations:
+      required: true
+  - type: dropdown
+    id: triage_quality
+    attributes:
+      label: Triage quality
+      options:
+        - excellent
+        - good
+        - average
+        - poor
+        - unknown
+    validations:
+      required: true
+  - type: dropdown
+    id: payment_reliability
+    attributes:
+      label: Payment reliability
+      options:
+        - excellent
+        - good
+        - average
+        - poor
+        - unpaid
+        - not-applicable
+        - unknown
+    validations:
+      required: true
+  - type: dropdown
+    id: scope_accuracy
+    attributes:
+      label: Scope accuracy
+      options:
+        - excellent
+        - good
+        - average
+        - poor
+        - unknown
+    validations:
+      required: true
+  - type: dropdown
+    id: communication
+    attributes:
+      label: Communication
+      options:
+        - excellent
+        - good
+        - average
+        - poor
+        - none
+        - unknown
+    validations:
+      required: true
+  - type: textarea
+    id: note
+    attributes:
+      label: Public note
+      description: Keep it factual, public, and disclosure-safe. Max 500 characters.
+      placeholder: Clear scope and responsive triage.
+    validations:
+      required: false

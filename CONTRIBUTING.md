@@ -15,7 +15,9 @@ This repository is public. Do not include private report details, confidential p
 
 ## Add or Update a Program
 
-Create or edit:
+The easiest submission path is the GitHub Issue Form labeled `review-submission`.
+
+If you prefer a Pull Request, create or edit:
 
 ```text
 data/programs/{platform}/{slug}.yml

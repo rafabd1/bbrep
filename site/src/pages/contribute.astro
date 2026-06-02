@@ -2,7 +2,26 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import data from "../generated/programs.json";
 
-const knownPrograms = data.programs.map((program) => `${program.platform}/${program.slug}`);
+const knownPrograms = data.programs.map((program) => ({
+  key: `${program.platform}/${program.slug}`,
+  name: program.name,
+  platform: program.platform,
+  slug: program.slug,
+}));
+const knownPlatforms = [
+  "hackerone",
+  "bugcrowd",
+  "intigriti",
+  "yeswehack",
+  "immunefi",
+  "code4rena",
+  "sherlock",
+  "cantina",
+  "hackenproof",
+  "hats",
+  "codehawks",
+  "self-hosted",
+];
 ---
 
 <BaseLayout title="Contribute | bbrep">
@@ -11,24 +30,29 @@ const knownPrograms = data.programs.map((program) => `${program.platform}/${prog
       <p class="eyebrow">Contribute</p>
       <h1>Submit a program review</h1>
       <p class="lede">
-        Fill the form, copy the generated YAML, and open a Pull Request. The site
-        updates automatically after the PR is reviewed and merged.
+        Use the Issue Form for the simplest submission, or copy the generated YAML
+        into a Pull Request when you want to edit the data directly.
       </p>
     </div>
 
     <section class="submission-steps" aria-labelledby="steps-title">
       <h2 id="steps-title">How submission works</h2>
       <ol>
-        <li>Generate the YAML below.</li>
-        <li>Open a Pull Request in <a href="https://github.com/rafabd1/bbrep">rafabd1/bbrep</a>.</li>
+        <li>Fast path: open the Review Issue Form and submit the same fields there.</li>
+        <li>PR path: generate the YAML below and copy it into a Pull Request.</li>
         <li>If the program is new, create the generated file path.</li>
         <li>If the program exists, edit that file and update your own review or append a new one.</li>
-        <li>Wait for CI and maintainer review.</li>
+        <li>A maintainer reviews the submission before it appears on the site.</li>
       </ol>
       <p>
         Deduplication uses <strong>program + GitHub PR author</strong>. Choosing anonymous only
         hides your handle on the site; GitHub history still shows the PR author.
       </p>
+    </section>
+
+    <section class="submission-actions" aria-label="Submission options">
+      <a class="button" href="https://github.com/rafabd1/bbrep/issues/new?template=review-submission.yml">Submit by Issue</a>
+      <a class="button button-secondary" href="https://github.com/rafabd1/bbrep/pulls">Open Pull Request</a>
     </section>
 
     <section class="generator" data-review-generator data-known-programs={JSON.stringify(knownPrograms)}>
@@ -39,21 +63,10 @@ const knownPrograms = data.programs.map((program) => `${program.platform}/${prog
         </label>
         <label>
           Platform
-          <select class="field" name="platform">
-            <option value="hackerone">hackerone</option>
-            <option value="bugcrowd">bugcrowd</option>
-            <option value="intigriti">intigriti</option>
-            <option value="yeswehack">yeswehack</option>
-            <option value="immunefi">immunefi</option>
-            <option value="code4rena">code4rena</option>
-            <option value="sherlock">sherlock</option>
-            <option value="cantina">cantina</option>
-            <option value="hackenproof">hackenproof</option>
-            <option value="hats">hats</option>
-            <option value="codehawks">codehawks</option>
-            <option value="self-hosted" selected>self-hosted</option>
-            <option value="other">other</option>
-          </select>
+          <input class="field" name="platform" list="platform-options" placeholder="hackerone or custom-platform" required />
+          <datalist id="platform-options">
+            {knownPlatforms.map((platform) => <option value={platform} />)}
+          </datalist>
         </label>
         <label>
           Program URL
@@ -152,7 +165,6 @@ const knownPrograms = data.programs.map((program) => `${program.platform}/${prog
           Create this file in your PR. The program page will be generated after merge.
         </p>
         <div class="output-actions">
-          <a class="button" href="https://github.com/rafabd1/bbrep/pulls" data-pr-link>Open PR</a>
           <button class="button button-secondary" type="button" data-copy-yaml>Copy YAML</button>
           <span class="copy-status" data-copy-status></span>
         </div>
@@ -171,7 +183,8 @@ const knownPrograms = data.programs.map((program) => `${program.platform}/${prog
   const outputInstructions = root?.querySelector("[data-output-instructions]");
   const copyButton = root?.querySelector("[data-copy-yaml]");
   const copyStatus = root?.querySelector("[data-copy-status]");
-  const knownPrograms = new Set(JSON.parse(root?.getAttribute("data-known-programs") || "[]"));
+  const knownPrograms = JSON.parse(root?.getAttribute("data-known-programs") || "[]");
+  const knownProgramKeys = new Set(knownPrograms.map((program) => program.key));
 
   const today = new Date().toISOString().slice(0, 10);
   const thisMonth = today.slice(0, 7);
@@ -188,6 +201,10 @@ const knownPrograms = data.programs.map((program) => `${program.platform}/${prog
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "")
       .replace(/-{2,}/g, "-") || "program-slug";
+  }
+
+  function platformSlug(input) {
+    return slugify(input || "self-hosted");
   }
 
   function yamlString(input) {
@@ -210,6 +227,15 @@ const knownPrograms = data.programs.map((program) => `${program.platform}/${prog
     return "";
   }
 
+  function findExistingProgram(platform, slug, name) {
+    const key = `${platform}/${slug}`;
+    const direct = knownPrograms.find((program) => program.key === key);
+    if (direct) return direct;
+
+    const normalizedName = slugify(name);
+    return knownPrograms.find((program) => program.slug === normalizedName) || null;
+  }
+
   function buildReviewYaml(indent = "  - ") {
     const note = value("note");
     return `${indent}reviewer:
@@ -230,15 +256,17 @@ const knownPrograms = data.programs.map((program) => `${program.platform}/${prog
     const programUrl = value("programUrl", "https://example.com/security");
     const inferred = inferPlatform(programUrl);
     const platformField = form?.querySelector('[name="platform"]');
-    if (inferred && platformField && !platformField.dataset.userChanged) {
+    if (inferred && platformField && !platformField.dataset.userChanged && !platformField.value.trim()) {
       platformField.value = inferred;
     }
 
-    const platform = value("platform", "self-hosted");
+    const platform = platformSlug(value("platform", "self-hosted"));
     const slug = slugify(programName);
-    const key = `${platform}/${slug}`;
-    const path = `data/programs/${key}.yml`;
-    const exists = knownPrograms.has(key);
+    const existing = findExistingProgram(platform, slug, programName);
+    const path = existing
+      ? `data/programs/${existing.platform}/${existing.slug}.yml`
+      : `data/programs/${platform}/${slug}.yml`;
+    const exists = Boolean(existing) || knownProgramKeys.has(`${platform}/${slug}`);
 
     const fullYaml = `schema_version: 1
 program:
@@ -265,13 +293,22 @@ ${buildReviewYaml()}`;
 
   form?.addEventListener("input", updateOutput);
   form?.addEventListener("change", updateOutput);
-  form?.querySelector('[name="platform"]')?.addEventListener("change", (event) => {
+  form?.querySelector('[name="platform"]')?.addEventListener("input", (event) => {
     event.currentTarget.dataset.userChanged = "true";
+    const current = event.currentTarget.value;
+    const normalized = platformSlug(current);
+    if (current && current !== normalized && /[^a-z0-9-]/.test(current)) {
+      event.currentTarget.value = normalized;
+    }
   });
 
   const experienceField = form?.querySelector('[name="experienceDate"]');
   if (experienceField) {
     experienceField.value = thisMonth;
+  }
+  const platformField = form?.querySelector('[name="platform"]');
+  if (platformField && !platformField.value) {
+    platformField.value = "self-hosted";
   }
 
   copyButton?.addEventListener("click", async () => {

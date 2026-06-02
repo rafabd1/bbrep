@@ -19,7 +19,7 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 DATA_ROOT = ROOT / "data" / "programs"
 
-PLATFORMS = {
+KNOWN_PLATFORMS = {
     "hackerone",
     "bugcrowd",
     "intigriti",
@@ -32,7 +32,6 @@ PLATFORMS = {
     "hats",
     "codehawks",
     "self-hosted",
-    "other",
 }
 URL_PATTERNS = {
     "hackerone": re.compile(r"^https://(www\.)?hackerone\.com/[^/?#]+/?(?:[?#].*)?$", re.I),
@@ -46,8 +45,6 @@ URL_PATTERNS = {
     "hackenproof": re.compile(r"^https://(www\.)?hackenproof\.com/[^ ]+$", re.I),
     "hats": re.compile(r"^https://([^/]+\.)?hats\.finance/[^ ]+$", re.I),
     "codehawks": re.compile(r"^https://(www\.)?codehawks\.com/[^ ]+$", re.I),
-    "self-hosted": re.compile(r"^https://[^ ]+$", re.I),
-    "other": re.compile(r"^https://[^ ]+$", re.I),
 }
 
 RESPONSE_TIME = {"fast", "medium", "slow", "ghosted", "unknown"}
@@ -184,8 +181,8 @@ def validate_program_file(path: Path, report: ValidationReport, check_urls: bool
 
     if not isinstance(name, str) or not name.strip():
         report.error(rel, "program.name is required")
-    if platform not in PLATFORMS:
-        report.error(rel, f"program.platform must be one of: {', '.join(sorted(PLATFORMS))}")
+    if not isinstance(platform, str) or not SLUG_RE.match(platform):
+        report.error(rel, "program.platform must be a lowercase slug")
     elif platform != expected_platform:
         report.error(rel, f"program.platform must match path platform '{expected_platform}'")
     if not isinstance(slug, str) or not SLUG_RE.match(slug):
