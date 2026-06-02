@@ -1,0 +1,96 @@
+---
+const { programs } = Astro.props;
+const platforms = [...new Set(programs.map((program) => program.platform))].sort();
+
+function formatSignal(value) {
+  if (value === null || value === undefined) return "unknown";
+  if (value >= 4.5) return "excellent";
+  if (value >= 3.5) return "good";
+  if (value >= 2.5) return "average";
+  return "poor";
+}
+---
+
+<section class="shell" aria-labelledby="ranking-title">
+  <div class="toolbar" data-program-filters>
+    <input class="field" type="search" placeholder="Search programs, platforms, tags..." aria-label="Search programs" data-search />
+    <select class="field" aria-label="Filter by platform" data-platform>
+      <option value="">All platforms</option>
+      {platforms.map((platform) => <option value={platform}>{platform}</option>)}
+    </select>
+    <select class="field" aria-label="Minimum rating" data-rating>
+      <option value="0">Any rating</option>
+      <option value="4">4+ rating</option>
+      <option value="3">3+ rating</option>
+      <option value="2">2+ rating</option>
+    </select>
+  </div>
+
+  <div class="program-table" id="ranking-title">
+    {
+      programs.length === 0 ? (
+        <div class="empty">
+          No reviews yet. The ranking will appear here after the first accepted program review.
+        </div>
+      ) : (
+        programs.map((program) => (
+          <a
+            class="program-row"
+            href={program.path}
+            data-program-row
+            data-name={program.name.toLowerCase()}
+            data-platform={program.platform}
+            data-rating={program.averageRating}
+            data-search={`${program.name} ${program.platform} ${program.slug} ${program.reviews.flatMap((review) => review.tags ?? []).join(" ")}`.toLowerCase()}
+          >
+            <div>
+              <div class="program-name">{program.name}</div>
+              <div class="source-path">{program.sourcePath}</div>
+            </div>
+            <span class="badge">{program.platform}</span>
+            <div>
+              <div class="rating">{program.averageRating ? program.averageRating.toFixed(2) : "n/a"}</div>
+              <div class="muted">{program.reviewCount} reviews</div>
+            </div>
+            <div class="signal">
+              <span>response</span>
+              <strong>{formatSignal(program.signals.response_time)}</strong>
+            </div>
+            <div class="signal">
+              <span>payment</span>
+              <strong>{formatSignal(program.signals.payment_reliability)}</strong>
+            </div>
+          </a>
+        ))
+      )
+    }
+    <div class="empty" hidden data-empty-results>No programs match the current filters.</div>
+  </div>
+</section>
+
+<script>
+  const filterRoot = document.querySelector("[data-program-filters]");
+  const rows = [...document.querySelectorAll("[data-program-row]")];
+  const empty = document.querySelector("[data-empty-results]");
+
+  function applyFilters() {
+    const query = filterRoot?.querySelector("[data-search]")?.value?.toLowerCase().trim() ?? "";
+    const platform = filterRoot?.querySelector("[data-platform]")?.value ?? "";
+    const minRating = Number(filterRoot?.querySelector("[data-rating]")?.value ?? 0);
+    let visible = 0;
+
+    for (const row of rows) {
+      const matchesQuery = !query || row.dataset.search?.includes(query);
+      const matchesPlatform = !platform || row.dataset.platform === platform;
+      const matchesRating = Number(row.dataset.rating ?? 0) >= minRating;
+      const show = matchesQuery && matchesPlatform && matchesRating;
+      row.hidden = !show;
+      if (show) visible += 1;
+    }
+
+    if (empty) empty.hidden = visible !== 0 || rows.length === 0;
+  }
+
+  filterRoot?.addEventListener("input", applyFilters);
+  filterRoot?.addEventListener("change", applyFilters);
+</script>

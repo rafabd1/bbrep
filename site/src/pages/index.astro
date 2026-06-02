@@ -1,0 +1,38 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ProgramList from "../components/ProgramList.astro";
+import data from "../generated/programs.json";
+
+const programs = data.programs;
+const reviewCount = programs.reduce((sum, program) => sum + program.reviewCount, 0);
+const platformCount = new Set(programs.map((program) => program.platform)).size;
+---
+
+<BaseLayout title="bbrep | Bug bounty program reputation">
+  <section class="shell hero">
+    <div>
+      <p class="eyebrow">Public BBP and VDP reputation data</p>
+      <h1>bbrep</h1>
+      <p class="lede">
+        A pull-request driven ranking of public security programs, built from structured
+        researcher reviews and transparent GitHub history.
+      </p>
+    </div>
+    <div class="stat-strip" aria-label="Repository stats">
+      <div class="stat">
+        <strong>{programs.length}</strong>
+        <span>programs</span>
+      </div>
+      <div class="stat">
+        <strong>{reviewCount}</strong>
+        <span>reviews</span>
+      </div>
+      <div class="stat">
+        <strong>{platformCount}</strong>
+        <span>platforms</span>
+      </div>
+    </div>
+  </section>
+
+  <ProgramList programs={programs} />
+</BaseLayout>

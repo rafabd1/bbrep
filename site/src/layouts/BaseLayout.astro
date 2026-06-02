@@ -1,0 +1,48 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "bbrep",
+  description = "Community-maintained reputation data for public bug bounty and VDP programs.",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/favicon.svg" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="shell nav" aria-label="Main navigation">
+        <a class="brand" href="/">
+          <span class="brand-mark" aria-hidden="true">bb</span>
+          <span>bbrep</span>
+        </a>
+        <div class="nav-links">
+          <a href="/">Ranking</a>
+          <a href="/contribute">Contribute</a>
+          <a href="/about">About</a>
+          <a href="https://github.com/rafabd1/bbrep">GitHub</a>
+        </div>
+      </nav>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer class="footer">
+      <div class="shell">
+        Reviews are individual opinions from independent researchers. Only public programs are accepted.
+      </div>
+    </footer>
+  </body>
+</html>
