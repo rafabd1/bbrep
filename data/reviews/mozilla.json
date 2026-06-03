@@ -1,0 +1,404 @@
+"""
+Mozilla Bug Bounty Program Configuration Module.
+
+This module provides a robust, production-quality configuration for the Mozilla
+bug bounty program on HackerOne, with comprehensive error handling, type safety,
+and logging capabilities.
+"""
+
+import json
+import logging
+import re
+from dataclasses import dataclass, field, asdict
+from enum import Enum
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Union, final
+from urllib.parse import urlparse, ParseResult
+
+# Configure module-level logger
+logger = logging.getLogger(__name__)
+
+
+class Rating(Enum):
+    """Enumeration for program ratings."""
+
+    ONE = 1
+    TWO = 2
+    THREE = 3
+    FOUR = 4
+    FIVE = 5
+
+    @classmethod
+    def from_int(cls, value: int) -> "Rating":
+        """Create Rating from integer with validation."""
+        if not isinstance(value, int):
+            raise TypeError(f"Rating must be an integer, got {type(value).__name__}")
+        if value < 1 or value > 5:
+            raise ValueError(f"Rating must be between 1 and 5, got {value}")
+        return cls(value)
+
+
+class ResponseTime(str, Enum):
+    """Enumeration for response time categories."""
+
+    FAST = "fast"
+    MEDIUM = "medium"
+    SLOW = "slow"
+
+    @classmethod
+    def from_string(cls, value: str) -> "ResponseTime":
+        """Create ResponseTime from string with validation."""
+        if not isinstance(value, str):
+            raise TypeError(f"Response time must be a string, got {type(value).__name__}")
+        normalized = value.strip().lower()
+        if normalized not in cls._value2member_map_:
+            raise ValueError(f"Invalid response time: {value}. Must be one of {list(cls)}")
+        return cls(normalized)
+
+
+class QualityLevel(str, Enum):
+    """Enumeration for quality assessment levels."""
+
+    EXCELLENT = "excellent"
+    GOOD = "good"
+    FAIR = "fair"
+    POOR = "poor"
+
+    @classmethod
+    def from_string(cls, value: str) -> "QualityLevel":
+        """Create QualityLevel from string with validation."""
+        if not isinstance(value, str):
+            raise TypeError(f"Quality level must be a string, got {type(value).__name__}")
+        normalized = value.strip().lower()
+        if normalized not in cls._value2member_map_:
+            raise ValueError(f"Invalid quality level: {value}. Must be one of {list(cls)}")
+        return cls(normalized)
+
+
+@dataclass(frozen=True)
+class ProgramConfig:
+    """
+    Immutable configuration for a bug bounty program.
+
+    Attributes:
+        program: Name of the program.
+        platform: Platform hosting the program.
+        program_url: URL to the program's page.
+        display_on_site: Where the program is displayed.
+        overall_rating: Overall rating (1-5).
+        response_time: Response time category.
+        triage_quality: Quality of triage process.
+        payment_reliability: Reliability of payments.
+        scope_accuracy: Accuracy of scope definition.
+        communication: Quality of communication.
+        public_note: Public note about the program.
+    """
+
+    program: str
+    platform: str
+    program_url: str
+    display_on_site: str
+    overall_rating: Rating
+    response_time: ResponseTime
+    triage_quality: QualityLevel
+    payment_reliability: QualityLevel
+    scope_accuracy: QualityLevel
+    communication: QualityLevel
+    public_note: str
+
+    # Valid platforms
+    VALID_PLATFORMS: set = frozenset({"hackerone", "bugcrowd", "synack", "intigriti"})
+
+    # Valid display options
+    VALID_DISPLAY_OPTIONS: set = frozenset({"github", "website", "both"})
+
+    def __post_init__(self) -> None:
+        """Validate configuration after initialization."""
+        self._validate_program_name()
+        self._validate_platform()
+        self._validate_url()
+        self._validate_display_option()
+        self._validate_public_note()
+
+    def _validate_program_name(self) -> None:
+        """Validate program name is non-empty and properly formatted."""
+        if not self.program or not self.program.strip():
+            raise ValueError("Program name cannot be empty")
+        if len(self.program) > 100:
+            raise ValueError(f"Program name too long: {len(self.program)} characters (max 100)")
+        if not re.match(r'^[a-zA-Z0-9\s\-_.]+$', self.program):
+            raise ValueError(f"Program name contains invalid characters: {self.program}")
+
+    def _validate_platform(self) -> None:
+        """Validate platform is supported."""
+        if self.platform.lower() not in self.VALID_PLATFORMS:
+            raise ValueError(
+                f"Unsupported platform: {self.platform}. "
+                f"Must be one of {sorted(self.VALID_PLATFORMS)}"
+            )
+
+    def _validate_url(self) -> None:
+        """Validate program URL is well-formed and secure."""
+        try:
+            parsed: ParseResult = urlparse(self.program_url)
+            if parsed.scheme not in ("https",):
+                raise ValueError(f"URL must use HTTPS scheme, got: {parsed.scheme}")
+            if not parsed.netloc:
+                raise ValueError(f"URL missing hostname: {self.program_url}")
+            if parsed.scheme == "https" and parsed.port and parsed.port != 443:
+                logger.warning(f"Non-standard HTTPS port in URL: {parsed.port}")
+        except Exception as e:
+            raise ValueError(f"Invalid URL: {self.program_url} - {e}") from e
+
+    def _validate_display_option(self) -> None:
+        """Validate display option is supported."""
+        if self.display_on_site.lower() not in self.VALID_DISPLAY_OPTIONS:
+            raise ValueError(
+                f"Invalid display option: {self.display_on_site}. "
+                f"Must be one of {sorted(self.VALID_DISPLAY_OPTIONS)}"
+            )
+
+    def _validate_public_note(self) -> None:
+        """Validate public note is appropriate length and content."""
+        if not self.public_note or not self.public_note.strip():
+            raise ValueError("Public note cannot be empty")
+        if len(self.public_note) > 500:
+            raise ValueError(f"Public note too long: {len(self.public_note)} characters (max 500)")
+        # Sanitize note to prevent injection
+        sanitized = re.sub(r'[<>&"\'\\]', '', self.public_note)
+        if sanitized != self.public_note:
+            logger.warning("Public note contained special characters that were sanitized")
+            object.__setattr__(self, 'public_note', sanitized)
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert configuration to dictionary."""
+        result = asdict(self)
+        # Convert enums to their values
+        result["overall_rating"] = self.overall_rating.value
+        result["response_time"] = self.response_time.value
+        result["triage_quality"] = self.triage_quality.value
+        result["payment_reliability"] = self.payment_reliability.value
+        result["scope_accuracy"] = self.scope_accuracy.value
+        result["communication"] = self.communication.value
+        return result
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "ProgramConfig":
+        """Create configuration from dictionary with validation."""
+        try:
+            # Validate required fields
+            required_fields = [
+                "program", "platform", "program_url", "display_on_site",
+                "overall_rating", "response_time", "triage_quality",
+                "payment_reliability", "scope_accuracy", "communication",
+                "public_note"
+            ]
+            missing = [f for f in required_fields if f not in data]
+            if missing:
+                raise KeyError(f"Missing required fields: {', '.join(missing)}")
+
+            # Convert string values to enums
+            return cls(
+                program=str(data["program"]).strip(),
+                platform=str(data["platform"]).strip().lower(),
+                program_url=str(data["program_url"]).strip(),
+                display_on_site=str(data["display_on_site"]).strip().lower(),
+                overall_rating=Rating.from_int(int(data["overall_rating"])),
+                response_time=ResponseTime.from_string(str(data["response_time"])),
+                triage_quality=QualityLevel.from_string(str(data["triage_quality"])),
+                payment_reliability=QualityLevel.from_string(str(data["payment_reliability"])),
+                scope_accuracy=QualityLevel.from_string(str(data["scope_accuracy"])),
+                communication=QualityLevel.from_string(str(data["communication"])),
+                public_note=str(data["public_note"]).strip()
+            )
+        except (KeyError, ValueError, TypeError) as e:
+            logger.error(f"Failed to create ProgramConfig from dict: {e}")
+            raise
+        except Exception as e:
+            logger.critical(f"Unexpected error creating ProgramConfig: {e}")
+            raise RuntimeError(f"Unexpected error: {e}") from e
+
+    def to_json(self, indent: int = 2) -> str:
+        """Serialize configuration to JSON string."""
+        try:
+            return json.dumps(self.to_dict(), indent=indent, ensure_ascii=False)
+        except (TypeError, ValueError) as e:
+            logger.error(f"Failed to serialize to JSON: {e}")
+            raise
+
+    @classmethod
+    def from_json(cls, json_str: str) -> "ProgramConfig":
+        """Create configuration from JSON string."""
+        try:
+            data = json.loads(json_str)
+            return cls.from_dict(data)
+        except json.JSONDecodeError as e:
+            logger.error(f"Invalid JSON string: {e}")
+            raise ValueError(f"Invalid JSON: {e}") from e
+        except Exception as e:
+            logger.error(f"Failed to parse JSON config: {e}")
+            raise
+
+    def save_to_file(self, filepath: Union[str, Path]) -> None:
+        """Save configuration to a JSON file."""
+        try:
+            path = Path(filepath)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            with open(path, 'w', encoding='utf-8') as f:
+                f.write(self.to_json())
+            logger.info(f"Configuration saved to {path}")
+        except (OSError, IOError) as e:
+            logger.error(f"Failed to save configuration to {filepath}: {e}")
+            raise
+        except Exception as e:
+            logger.critical(f"Unexpected error saving configuration: {e}")
+            raise RuntimeError(f"Unexpected error: {e}") from e
+
+    @classmethod
+    def load_from_file(cls, filepath: Union[str, Path]) -> "ProgramConfig":
+        """Load configuration from a JSON file."""
+        try:
+            path = Path(filepath)
+            if not path.exists():
+                raise FileNotFoundError(f"Configuration file not found: {path}")
+            if not path.is_file():
+                raise IsADirectoryError(f"Path is a directory, not a file: {path}")
+            with open(path, 'r', encoding='utf-8') as f:
+                data = f.read()
+            logger.info(f"Configuration loaded from {path}")
+            return cls.from_json(data)
+        except (FileNotFoundError, IsADirectoryError) as e:
+            logger.error(f"File error: {e}")
+            raise
+        except (OSError, IOError) as e:
+            logger.error(f"Failed to read configuration file: {e}")
+            raise
+        except Exception as e:
+            logger.critical(f"Unexpected error loading configuration: {e}")
+            raise RuntimeError(f"Unexpected error: {e}") from e
+
+
+# Pre-configured Mozilla program instance
+MOZILLA_CONFIG = ProgramConfig(
+    program="Mozilla",
+    platform="hackerone",
+    program_url="https://hackerone.com/mozilla",
+    display_on_site="github",
+    overall_rating=Rating.FIVE,
+    response_time=ResponseTime.MEDIUM,
+    triage_quality=QualityLevel.EXCELLENT,
+    payment_reliability=QualityLevel.GOOD,
+    scope_accuracy=QualityLevel.GOOD,
+    communication=QualityLevel.GOOD,
+    public_note="Mozilla has a very fair triage process, with good bounties and good responses."
+)
+
+
+def get_mozilla_config() -> ProgramConfig:
+    """
+    Get the Mozilla bug bounty program configuration.
+
+    Returns:
+        ProgramConfig: Immutable configuration for the Mozilla program.
+
+    Raises:
+        RuntimeError: If configuration is invalid.
+    """
+    try:
+        logger.debug("Retrieving Mozilla configuration")
+        return MOZILLA_CONFIG
+    except Exception as e:
+        logger.critical(f"Failed to retrieve Mozilla configuration: {e}")
+        raise RuntimeError(f"Configuration error: {e}") from e
+
+
+def validate_config(config: ProgramConfig) -> bool:
+    """
+    Validate a ProgramConfig instance.
+
+    Args:
+        config: ProgramConfig instance to validate.
+
+    Returns:
+        bool: True if valid, False otherwise.
+
+    Raises:
+        TypeError: If config is not a ProgramConfig instance.
+    """
+    if not isinstance(config, ProgramConfig):
+        raise TypeError(f"Expected ProgramConfig, got {type(config).__name__}")
+    
+    try:
+        # Re-run validation by creating a new instance
+        ProgramConfig(
+            program=config.program,
+            platform=config.platform,
+            program_url=config.program_url,
+            display_on_site=config.display_on_site,
+            overall_rating=config.overall_rating,
+            response_time=config.response_time,
+            triage_quality=config.triage_quality,
+            payment_reliability=config.payment_reliability,
+            scope_accuracy=config.scope_accuracy,
+            communication=config.communication,
+            public_note=config.public_note
+        )
+        logger.debug(f"Configuration validated successfully for {config.program}")
+        return True
+    except (ValueError, TypeError) as e:
+        logger.error(f"Configuration validation failed: {e}")
+        return False
+
+
+def main() -> None:
+    """Main entry point for demonstration and testing."""
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
+    try:
+        # Get and display configuration
+        config = get_mozilla_config()
+        logger.info(f"Loaded configuration for {config.program}")
+        
+        # Validate configuration
+        if validate_config(config):
+            logger.info("Configuration is valid")
+        else:
+            logger.error("Configuration validation failed")
+            return
+        
+        # Display configuration
+        print("\nMozilla Bug Bounty Program Configuration:")
+        print("=" * 50)
+        print(f"Program: {config.program}")
+        print(f"Platform: {config.platform}")
+        print(f"URL: {config.program_url}")
+        print(f"Display: {config.display_on_site}")
+        print(f"Rating: {config.overall_rating.value}/5")
+        print(f"Response Time: {config.response_time.value}")
+        print(f"Triage Quality: {config.triage_quality.value}")
+        print(f"Payment Reliability: {config.payment_reliability.value}")
+        print(f"Scope Accuracy: {config.scope_accuracy.value}")
+        print(f"Communication: {config.communication.value}")
+        print(f"Note: {config.public_note}")
+        print("=" * 50)
+        
+        # Demonstrate serialization
+        print("\nJSON representation:")
+        print(config.to_json())
+        
+        # Demonstrate file operations
+        config.save_to_file("mozilla_config.json")
+        loaded_config = ProgramConfig.load_from_file("mozilla_config.json")
+        print(f"\nLoaded config from file: {loaded_config.program}")
+        
+    except Exception as e:
+        logger.critical(f"Application failed: {e}")
+        raise
+
+
+if __name__ == "__main__":
+    main()
