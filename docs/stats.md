@@ -5,9 +5,9 @@ Static snapshot generated from `data/programs`.
 | Metric | Value |
 | --- | ---: |
 | Programs | 25 |
-| Reviews | 43 |
+| Reviews | 44 |
 | Platforms | 5 |
-| Average program rating | 2.85 |
+| Average program rating | 2.84 |
 
 ## Platforms
 
@@ -38,8 +38,8 @@ Static snapshot generated from `data/programs`.
 | Microsoft MSRC | self-hosted | 3 | 3.00 | `data/programs/self-hosted/microsoft-msrc.yml` |
 | Okta | bugcrowd | 1 | 3.00 | `data/programs/bugcrowd/okta.yml` |
 | Uber | hackerone | 1 | 3.00 | `data/programs/hackerone/uber.yml` |
-| Snapchat | hackerone | 3 | 2.67 | `data/programs/hackerone/snapchat.yml` |
 | OpenAI | bugcrowd | 3 | 2.33 | `data/programs/bugcrowd/openai.yml` |
+| Snapchat | hackerone | 4 | 2.25 | `data/programs/hackerone/snapchat.yml` |
 | Amazon Devices and Services | hackerone | 1 | 2.00 | `data/programs/hackerone/amazon-devices.yml` |
 | Atlassian | bugcrowd | 1 | 2.00 | `data/programs/bugcrowd/atlassian.yml` |
 | Roblox | hackerone | 1 | 2.00 | `data/programs/hackerone/roblox.yml` |
