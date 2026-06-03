@@ -5,7 +5,7 @@ Static review index generated from `data/programs`.
 | Submitted | Program | Platform | Rating | Reviewer | Tags | Note |
 | --- | --- | --- | ---: | --- | --- | --- |
 | 2026-06-03 | Vercel Open Source | hackerone | mid 3/5 | @rafabd1 |  | Vercel OSS currently has quite long triage times and medium bounties, with a broad scope. |
-| 2026-06-03 | Snapchat | hackerone | down 1/5 | @rafabd1 |  | Snapchat's triage basically provides meaningless excuses to invalidate vulnerabilities they don't want to fix. The program is unfair and misleading overall. |
+| 2026-06-03 | Snapchat | hackerone | down 1/5 | @rafabd1 | #scam #wontfix | Snapchat's triage basically provides meaningless excuses to invalidate vulnerabilities they don't want to fix. The program is unfair and misleading overall. #scam #wontfix |
 | 2026-06-03 | Mozilla | hackerone | up 5/5 | @rafabd1 |  | Mozilla has a very fair triage process, with good bounties and good responses. |
 | 2026-06-03 | GitLab | hackerone | up 4/5 | @rafabd1 |  | GitLab has quite long triage and payment times, but overall the staff is responsive and fair. |
 | 2026-06-02 | Cluely | self-hosted | down 1/5 | anonymous |  | Cluely has recent public criticism around payment follow-through after a reported issue was fixed. * Internet-sourced review. |
