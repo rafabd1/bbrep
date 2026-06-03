@@ -4,15 +4,19 @@ Static snapshot generated from `data/programs`.
 
 | Metric | Value |
 | --- | ---: |
-| Programs | 0 |
-| Reviews | 0 |
-| Platforms | 0 |
-| Average program rating | 0.00 |
+| Programs | 1 |
+| Reviews | 1 |
+| Platforms | 1 |
+| Average program rating | 4.00 |
 
 ## Platforms
 
-No programs yet.
+| Platform | Programs |
+| --- | ---: |
+| hackerone | 1 |
 
 ## Programs
 
-No programs yet.
+| Program | Platform | Reviews | Rating | Source |
+| --- | --- | ---: | ---: | --- |
+| Test | hackerone | 1 | 4.00 | `data/programs/hackerone/test.yml` |
