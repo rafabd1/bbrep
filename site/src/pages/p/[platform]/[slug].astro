@@ -1,0 +1,55 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import data from "../../../generated/programs.json";
+
+export function getStaticPaths() {
+  return data.programs.map((program) => ({
+    params: { platform: program.platform, slug: program.slug },
+    props: { program },
+  }));
+}
+
+const { program } = Astro.props;
+---
+
+<BaseLayout title={`${program.name} | bbrep`}>
+  <section class="program-header">
+    <div class="shell">
+      <p class="eyebrow">{program.platform}</p>
+      <h1>{program.name}</h1>
+      <div class="program-meta">
+        <span class="pill">rating {program.averageRating ? program.averageRating.toFixed(2) : "n/a"}</span>
+        <span class="pill">{program.reviewCount} reviews</span>
+        {program.latestReview && <span class="pill">updated {program.latestReview}</span>}
+        <a class="pill" href={program.programUrl}>program</a>
+        {program.policyUrl && <a class="pill" href={program.policyUrl}>policy</a>}
+      </div>
+    </div>
+  </section>
+
+  <section class="shell content">
+    <h2>Reviews</h2>
+    <div class="reviews">
+      {
+        program.reviews.map((review) => (
+          <article class="review">
+            <div class="review-top">
+              <strong>{review.reviewerLabel}</strong>
+              <span class="muted">
+                experience {review.experience_date} / submitted {review.submitted_at}
+              </span>
+            </div>
+            <div class="review-grid">
+              <span class="pill">rating {review.rating}/5</span>
+              <span class="pill">response {review.response_time}</span>
+              <span class="pill">triage {review.triage_quality}</span>
+              <span class="pill">payment {review.payment_reliability}</span>
+              <span class="pill">scope {review.scope_accuracy}</span>
+            </div>
+            {review.note && <p class="review-note">{review.note}</p>}
+          </article>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>

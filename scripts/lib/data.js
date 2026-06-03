@@ -1,0 +1,101 @@
+import { readdir } from "node:fs/promises";
+import path from "node:path";
+
+export const qualityScores = {
+  excellent: 5,
+  good: 4,
+  average: 3,
+  poor: 1,
+  none: 1,
+  ghosted: 1,
+  slow: 2,
+  medium: 3,
+  fast: 5,
+  unpaid: 1,
+  "not-applicable": null,
+  unknown: null,
+};
+
+export async function globPrograms(root) {
+  const dataRoot = path.join(root, "data", "programs");
+  let platforms = [];
+
+  try {
+    platforms = await readdir(dataRoot, { withFileTypes: true });
+  } catch {
+    return [];
+  }
+
+  const files = [];
+  for (const platform of platforms) {
+    if (!platform.isDirectory()) continue;
+    const platformDir = path.join(dataRoot, platform.name);
+    const entries = await readdir(platformDir, { withFileTypes: true });
+    for (const entry of entries) {
+      if (entry.isFile() && [".yml", ".yaml"].includes(path.extname(entry.name))) {
+        files.push(path.join(platformDir, entry.name));
+      }
+    }
+  }
+
+  return files.sort();
+}
+
+export function normalizeProgram(record, filePath, root) {
+  const program = record.program;
+  const reviews = record.reviews ?? [];
+  const enrichedReviews = reviews
+    .map((review) => ({
+      ...review,
+      reviewerLabel:
+        review.reviewer?.display === "anonymous" ? "anonymous" : `@${review.reviewer.github}`,
+    }))
+    .sort((a, b) => String(b.submitted_at).localeCompare(String(a.submitted_at)));
+
+  const reviewCount = enrichedReviews.length;
+  const averageRating =
+    reviewCount === 0
+      ? 0
+      : Number(
+          (
+            enrichedReviews.reduce((sum, review) => sum + Number(review.rating ?? 0), 0) /
+            reviewCount
+          ).toFixed(2),
+        );
+
+  const latestReview = enrichedReviews[0]?.submitted_at ?? null;
+  const scoreFields = [
+    "response_time",
+    "triage_quality",
+    "payment_reliability",
+    "scope_accuracy",
+    "communication",
+  ];
+
+  const signals = Object.fromEntries(
+    scoreFields.map((field) => {
+      const values = enrichedReviews
+        .map((review) => qualityScores[review[field]])
+        .filter((value) => typeof value === "number");
+      const avg = values.length
+        ? Number((values.reduce((sum, value) => sum + value, 0) / values.length).toFixed(2))
+        : null;
+      return [field, avg];
+    }),
+  );
+
+  return {
+    name: program.name,
+    platform: program.platform,
+    slug: program.slug,
+    programUrl: program.program_url,
+    policyUrl: program.policy_url ?? null,
+    path: `/p/${program.platform}/${program.slug}`,
+    sourcePath: path.relative(root, filePath).replaceAll("\\", "/"),
+    reviewCount,
+    averageRating,
+    latestReview,
+    signals,
+    reviews: enrichedReviews,
+  };
+}

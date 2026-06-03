@@ -1,0 +1,19 @@
+{
+  "name": "bbrep",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "python scripts/validate.py",
+    "predev": "node scripts/build-data.mjs",
+    "dev": "astro dev --root site --host 127.0.0.1",
+    "prebuild": "node scripts/build-data.mjs",
+    "build": "astro build --root site",
+    "preview": "astro preview --root site --host 127.0.0.1"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.3.1",
+    "astro": "^6.4.3",
+    "yaml": "^2.7.1"
+  }
+}
