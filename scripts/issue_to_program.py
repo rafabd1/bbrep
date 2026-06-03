@@ -39,6 +39,25 @@ QUALITY = {"excellent", "good", "average", "poor", "unknown"}
 PAYMENT = {"excellent", "good", "average", "poor", "unpaid", "not-applicable", "unknown"}
 COMMUNICATION = {"excellent", "good", "average", "poor", "none", "unknown"}
 DISPLAY_MODES = {"github", "anonymous"}
+KNOWN_PROBLEM_TAGS = {
+    "cvssmagic",
+    "scam",
+    "ghosting",
+    "lowball",
+    "slowpay",
+    "scopechaos",
+    "wontfix",
+}
+PROBLEM_TAG_ALIASES = {
+    "cvss-magic": "cvssmagic",
+    "ghosted": "ghosting",
+    "slow-pay": "slowpay",
+    "scope-chaos": "scopechaos",
+    "scopebait": "scopechaos",
+    "wont-fix": "wontfix",
+    "wontfixloop": "wontfix",
+}
+HASH_TAG_RE = re.compile(r"#([a-z0-9][a-z0-9-]*)", re.I)
 
 PLATFORM_ALIASES = {
     "hacker-one": "hackerone",
@@ -110,6 +129,23 @@ def normalize_platform(value: str, program_url: str) -> str:
         return "self-hosted"
 
     return raw
+
+
+def normalize_problem_tag(value: str) -> str:
+    normalized = slugify(value.lstrip("#"), "")
+    return PROBLEM_TAG_ALIASES.get(normalized, normalized)
+
+
+def extract_problem_tags(fields: dict[str, str]) -> list[str]:
+    note_tags = HASH_TAG_RE.findall(fields.get("note", ""))
+    tags = []
+    seen: set[str] = set()
+    for raw in note_tags:
+        tag = normalize_problem_tag(raw)
+        if tag in KNOWN_PROBLEM_TAGS and tag not in seen:
+            tags.append(tag)
+            seen.add(tag)
+    return tags
 
 
 def parse_issue_form(body: str) -> dict[str, str]:
@@ -249,6 +285,7 @@ def review_month(issue: dict[str, Any]) -> str:
 
 def build_review(fields: dict[str, str], author: str, issue: dict[str, Any], rating: int) -> dict[str, Any]:
     note = fields.get("note", "").strip()
+    tags = extract_problem_tags(fields)
     review: dict[str, Any] = {
         "reviewer": {
             "github": author,
@@ -263,6 +300,8 @@ def build_review(fields: dict[str, str], author: str, issue: dict[str, Any], rat
         "scope_accuracy": required(fields, "scope_accuracy"),
         "communication": required(fields, "communication"),
     }
+    if tags:
+        review["tags"] = tags
     if note:
         review["note"] = note
     return review

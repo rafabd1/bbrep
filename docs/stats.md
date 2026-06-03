@@ -19,6 +19,10 @@ Static snapshot generated from `data/programs`.
 | intigriti | 1 |
 | self-hosted | 6 |
 
+## Problem Tags
+
+No known problem tags yet.
+
 ## Programs
 
 | Program | Platform | Reviews | Rating | Source |

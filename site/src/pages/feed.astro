@@ -42,6 +42,18 @@ function ratingSymbol(value) {
                 <div class="muted">
                   {review.platform} / {review.reviewerLabel} / {review.submitted_at}
                 </div>
+                {
+                  review.problemTags.length > 0 && (
+                    <div class="reaction-row feed-reactions" aria-label="Known problem tags">
+                      {review.problemTags.map((tag) => (
+                        <span class="reaction" title={tag.label} aria-label={tag.label}>
+                          <span aria-hidden="true">{tag.emoji}</span>
+                          <span>{tag.key}</span>
+                        </span>
+                      ))}
+                    </div>
+                  )
+                }
                 {review.note && <p class="review-note">{review.note}</p>}
               </div>
               <span class={`pill rating rating-${ratingTone(review.rating)}`}>

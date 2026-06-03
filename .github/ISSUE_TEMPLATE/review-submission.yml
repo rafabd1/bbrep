@@ -120,7 +120,7 @@ body:
     id: note
     attributes:
       label: Public note
-      description: Keep it factual, public, and disclosure-safe. Max 500 characters.
+      description: Keep it factual, public, and disclosure-safe. You can also include known problem tags such as #ghosting. Max 500 characters.
       placeholder: Clear scope and responsive triage.
     validations:
       required: false

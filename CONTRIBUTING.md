@@ -13,9 +13,9 @@ This repository is public. Do not include private report details, confidential p
 - If you already submitted a review for the same program, update that entry instead of adding another one.
 - Set `reviewer.display` to `anonymous` if you do not want your handle shown on the site. The PR author remains visible in GitHub history.
 
-## Add or Update a Program
+## Submit by Issue
 
-The primary submission path is a GitHub Issue labeled `review-submission`.
+The normal submission path is a GitHub Issue labeled `review-submission`. You do not need to edit YAML by hand.
 
 1. Fill the review fields on the contribution page.
 2. Copy the generated Issue body.
@@ -23,7 +23,15 @@ The primary submission path is a GitHub Issue labeled `review-submission`.
 4. GitHub Actions converts the Issue into `data/programs/{platform}/{slug}.yml`.
 5. The action opens or updates a Pull Request for maintainer review.
 
-The Issue author becomes the canonical reviewer identity. If the same account submits another review for the same program, the generated Pull Request updates that account's existing review instead of adding a duplicate.
+The Issue author becomes the canonical reviewer identity. If the same GitHub account submits another review for the same program, the generated Pull Request updates that account's existing review instead of adding a duplicate.
+
+Manual Pull Requests are still supported for maintainers and advanced contributors, but public contributors should prefer the Issue flow.
+
+## Program Matching
+
+Issue submissions are matched to existing programs by public program URL, then by platform/slug, then by normalized program name. If a match is found, the new review is added to that program. If the same Issue author already reviewed that program, their old review is replaced.
+
+Use the public program page as `Program URL`. Platform can be a known platform such as `hackerone`, `bugcrowd`, `intigriti`, `immunefi`, or a custom slug for self-hosted/custom programs.
 
 ## Rating Guidance
 
@@ -34,6 +42,24 @@ Use the overall `rating` as a practical researcher experience score:
 - `3`: workable but mixed.
 - `2`: significant friction; researchers should be cautious.
 - `1`: severe issues such as ghosting, unreliable payment, or materially misleading scope.
+
+## Problem Tags
+
+Problem tags are optional short markers for common bad-program patterns. Add them directly inside the public note as hashtags. The CI extracts known tags, normalizes aliases, and counts them on the site like small reaction counters.
+
+Available tags:
+
+| Tag | Meaning |
+| --- | --- |
+| `#cvssmagic` | severity is reduced through questionable CVSS interpretation |
+| `#scam` | strong warning signs around legitimacy or payout behavior |
+| `#ghosting` | reports are left without meaningful response |
+| `#lowball` | payout appears materially lower than impact or policy expectation |
+| `#slowpay` | payment is accepted but unusually slow or unreliable |
+| `#scopechaos` | scope or policy interpretation is inconsistent or confusing |
+| `#wontfix` | repeated weak closures or wontfix loops |
+
+Use tags sparingly. The public note should still explain the practical issue in plain language.
 
 ## Validation
 

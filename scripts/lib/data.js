@@ -16,6 +16,49 @@ export const qualityScores = {
   unknown: null,
 };
 
+export const problemTags = {
+  cvssmagic: { emoji: "\u{1FA84}", label: "CVSS magic" },
+  scam: { emoji: "\u26A0\uFE0F", label: "scam" },
+  ghosting: { emoji: "\u{1F47B}", label: "ghosting" },
+  lowball: { emoji: "\u{1F4B8}", label: "lowball" },
+  slowpay: { emoji: "\u23F3", label: "slow pay" },
+  scopechaos: { emoji: "\u{1F9E9}", label: "scope chaos" },
+  wontfix: { emoji: "\u{1F6AB}", label: "wontfix loop" },
+};
+
+const problemTagAliases = {
+  "cvss-magic": "cvssmagic",
+  ghosted: "ghosting",
+  "slow-pay": "slowpay",
+  "scope-chaos": "scopechaos",
+  scopebait: "scopechaos",
+  "wont-fix": "wontfix",
+  wontfixloop: "wontfix",
+};
+
+const hashTagPattern = /#([a-z0-9][a-z0-9-]*)/gi;
+
+function normalizeProblemTag(tag) {
+  const normalized = String(tag ?? "")
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .replace(/-{2,}/g, "-");
+  return problemTagAliases[normalized] ?? normalized;
+}
+
+function reviewProblemTags(review) {
+  const tags = Array.isArray(review.tags) ? review.tags : [];
+  const noteTags = [...String(review.note ?? "").matchAll(hashTagPattern)].map((match) => match[1]);
+  const unique = new Set([...tags, ...noteTags].map(normalizeProblemTag));
+  return [...unique]
+    .filter((tag) => Object.hasOwn(problemTags, tag))
+    .map((tag) => ({
+      key: tag,
+      ...problemTags[tag],
+    }));
+}
+
 export async function globPrograms(root) {
   const dataRoot = path.join(root, "data", "programs");
   let platforms = [];
@@ -45,11 +88,15 @@ export function normalizeProgram(record, filePath, root) {
   const program = record.program;
   const reviews = record.reviews ?? [];
   const enrichedReviews = reviews
-    .map((review) => ({
-      ...review,
-      reviewerLabel:
-        review.reviewer?.display === "anonymous" ? "anonymous" : `@${review.reviewer.github}`,
-    }))
+    .map((review) => {
+      const knownProblemTags = reviewProblemTags(review);
+      return {
+        ...review,
+        problemTags: knownProblemTags,
+        reviewerLabel:
+          review.reviewer?.display === "anonymous" ? "anonymous" : `@${review.reviewer.github}`,
+      };
+    })
     .sort((a, b) => String(b.submitted_at).localeCompare(String(a.submitted_at)));
 
   const reviewCount = enrichedReviews.length;
@@ -84,6 +131,21 @@ export function normalizeProgram(record, filePath, root) {
     }),
   );
 
+  const problemStats = Object.entries(
+    enrichedReviews
+      .flatMap((review) => review.problemTags)
+      .reduce((counts, tag) => {
+        counts[tag.key] = (counts[tag.key] ?? 0) + 1;
+        return counts;
+      }, {}),
+  )
+    .map(([key, count]) => ({
+      key,
+      count,
+      ...problemTags[key],
+    }))
+    .sort((a, b) => b.count - a.count || a.key.localeCompare(b.key));
+
   return {
     name: program.name,
     platform: program.platform,
@@ -96,6 +158,7 @@ export function normalizeProgram(record, filePath, root) {
     averageRating,
     latestReview,
     signals,
+    problemStats,
     reviews: enrichedReviews,
   };
 }

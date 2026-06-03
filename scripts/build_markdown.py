@@ -4,6 +4,7 @@ from __future__ import annotations
 from collections import Counter
 from pathlib import Path
 from typing import Any
+import re
 
 import yaml
 
@@ -11,6 +12,26 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 DATA_ROOT = ROOT / "data" / "programs"
 DOCS_ROOT = ROOT / "docs"
+
+KNOWN_PROBLEM_TAGS = {
+    "cvssmagic": "CVSS magic",
+    "scam": "scam",
+    "ghosting": "ghosting",
+    "lowball": "lowball",
+    "slowpay": "slow pay",
+    "scopechaos": "scope chaos",
+    "wontfix": "wontfix loop",
+}
+PROBLEM_TAG_ALIASES = {
+    "cvss-magic": "cvssmagic",
+    "ghosted": "ghosting",
+    "slow-pay": "slowpay",
+    "scope-chaos": "scopechaos",
+    "scopebait": "scopechaos",
+    "wont-fix": "wontfix",
+    "wontfixloop": "wontfix",
+}
+HASH_TAG_RE = re.compile(r"#([a-z0-9][a-z0-9-]*)", re.I)
 
 
 def program_files() -> list[Path]:
@@ -50,6 +71,29 @@ def rating_symbol(rating: Any) -> str:
     if value >= 3:
         return "mid"
     return "down"
+
+
+def normalize_problem_tag(value: Any) -> str:
+    text = str(value or "").lower().lstrip("#")
+    text = re.sub(r"[^a-z0-9-]+", "-", text)
+    text = re.sub(r"-{2,}", "-", text).strip("-")
+    return PROBLEM_TAG_ALIASES.get(text, text)
+
+
+def review_problem_tags(review: dict[str, Any]) -> list[str]:
+    raw_tags = review.get("tags", [])
+    if not isinstance(raw_tags, list):
+        raw_tags = []
+    note_tags = HASH_TAG_RE.findall(str(review.get("note", "")))
+
+    tags: list[str] = []
+    seen: set[str] = set()
+    for raw in [*raw_tags, *note_tags]:
+        tag = normalize_problem_tag(raw)
+        if tag in KNOWN_PROBLEM_TAGS and tag not in seen:
+            tags.append(tag)
+            seen.add(tag)
+    return tags
 
 
 def collect() -> list[dict[str, Any]]:
@@ -98,6 +142,12 @@ def build_stats(programs: list[dict[str, Any]]) -> str:
         if rated_programs
         else 0
     )
+    problem_tags = Counter(
+        tag
+        for program in programs
+        for review in program["reviews"]
+        for tag in review_problem_tags(review)
+    )
 
     lines = [
         "# bbrep stats",
@@ -121,6 +171,14 @@ def build_stats(programs: list[dict[str, Any]]) -> str:
             lines.append(f"| {escape(platform)} | {count} |")
     else:
         lines.append("No programs yet.")
+
+    lines.extend(["", "## Problem Tags", ""])
+    if problem_tags:
+        lines.extend(["| Tag | Meaning | Reviews |", "| --- | --- | ---: |"])
+        for tag, count in sorted(problem_tags.items(), key=lambda item: (-item[1], item[0])):
+            lines.append(f"| `#{escape(tag)}` | {escape(KNOWN_PROBLEM_TAGS[tag])} | {count} |")
+    else:
+        lines.append("No known problem tags yet.")
 
     lines.extend(["", "## Programs", ""])
     if programs:
@@ -151,8 +209,8 @@ def build_reviews(programs: list[dict[str, Any]]) -> str:
                     "rating": review.get("rating"),
                     "symbol": rating_symbol(review.get("rating")),
                     "reviewer": reviewer_label(review),
-                    "experience_date": review.get("experience_date", ""),
                     "submitted_at": review.get("submitted_at", ""),
+                    "tags": review_problem_tags(review),
                     "note": review.get("note", ""),
                 }
             )
@@ -169,11 +227,12 @@ def build_reviews(programs: list[dict[str, Any]]) -> str:
     if reviews:
         lines.extend(
             [
-                "| Submitted | Program | Platform | Rating | Reviewer | Experience | Note |",
+                "| Submitted | Program | Platform | Rating | Reviewer | Tags | Note |",
                 "| --- | --- | --- | ---: | --- | --- | --- |",
             ]
         )
         for review in reviews:
+            tags = " ".join(f"#{tag}" for tag in review["tags"])
             lines.append(
                 "| "
                 f"{escape(review['submitted_at'])} | "
@@ -181,7 +240,7 @@ def build_reviews(programs: list[dict[str, Any]]) -> str:
                 f"{escape(review['platform'])} | "
                 f"{escape(review['symbol'])} {escape(review['rating'])}/5 | "
                 f"{escape(review['reviewer'])} | "
-                f"{escape(review['experience_date'])} | "
+                f"{escape(tags)} | "
                 f"{escape(review['note'])} |"
             )
     else:

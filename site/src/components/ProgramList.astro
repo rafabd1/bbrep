@@ -23,6 +23,10 @@ function ratingSymbol(value) {
   if (value >= 3) return "=";
   return "-";
 }
+
+function reactionLabel(tag) {
+  return `${tag.label} x${tag.count}`;
+}
 ---
 
 <section class="shell" aria-labelledby="ranking-title">
@@ -94,7 +98,7 @@ function ratingSymbol(value) {
             data-triage={program.signals.triage_quality ?? 0}
             data-scope={program.signals.scope_accuracy ?? 0}
             data-communication={program.signals.communication ?? 0}
-            data-search={`${program.name} ${program.platform} ${program.slug} ${program.reviews.flatMap((review) => review.tags ?? []).join(" ")}`.toLowerCase()}
+            data-search={`${program.name} ${program.platform} ${program.slug} ${program.problemStats.map((tag) => tag.key).join(" ")}`.toLowerCase()}
           >
             <div class="program-main">
               <div class="program-name">{program.name}</div>
@@ -116,6 +120,18 @@ function ratingSymbol(value) {
               <span>payment</span>
               <strong>{formatSignal(program.signals.payment_reliability)}</strong>
             </div>
+            {
+              program.problemStats.length > 0 && (
+                <div class="reaction-row program-reactions" aria-label="Known problem tags">
+                  {program.problemStats.map((tag) => (
+                    <span class="reaction" title={reactionLabel(tag)} aria-label={reactionLabel(tag)}>
+                      <span aria-hidden="true">{tag.emoji}</span>
+                      <span>{tag.count}</span>
+                    </span>
+                  ))}
+                </div>
+              )
+            }
           </a>
         ))
       )

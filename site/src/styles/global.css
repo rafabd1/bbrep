@@ -263,7 +263,7 @@ h2 {
 
 .program-row {
   display: grid;
-  grid-template-columns: minmax(220px, 1.35fr) 125px 115px 145px 130px;
+  grid-template-columns: minmax(220px, 1.35fr) 125px 115px 145px 130px minmax(0, max-content);
   gap: 16px;
   align-items: center;
   min-height: 78px;
@@ -359,6 +359,35 @@ h2 {
 .signal strong {
   color: var(--ink);
   font-size: 14px;
+}
+
+.reaction-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.reaction {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 24px;
+  padding: 2px 7px;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.program-reactions {
+  justify-content: flex-end;
+}
+
+.program-header-reactions,
+.review-reactions,
+.feed-reactions {
+  margin-top: 10px;
 }
 
 .empty {
@@ -610,7 +639,8 @@ h2 {
     grid-template-areas:
       "main rating"
       "platform rating"
-      "response payment";
+      "response payment"
+      "reactions reactions";
     align-items: start;
     gap: 10px 14px;
   }
@@ -635,6 +665,11 @@ h2 {
 
   .signal-payment {
     grid-area: payment;
+  }
+
+  .program-reactions {
+    grid-area: reactions;
+    justify-content: flex-start;
   }
 
   .generator-output {
@@ -676,7 +711,8 @@ h2 {
       "main rating"
       "platform rating"
       "response response"
-      "payment payment";
+      "payment payment"
+      "reactions reactions";
     min-height: 0;
     padding: 14px 0;
   }

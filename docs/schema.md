@@ -26,13 +26,16 @@ reviews:
       display: github
     experience_date: "2026-06"
     submitted_at: "2026-06-02"
-    rating: 4
-    response_time: fast
-    triage_quality: good
-    payment_reliability: good
+    rating: 2
+    response_time: ghosted
+    triage_quality: poor
+    payment_reliability: poor
     scope_accuracy: good
-    communication: good
-    note: "Fast triage and payment timeline matched the policy."
+    communication: poor
+    tags:
+      - ghosting
+      - lowball
+    note: "Long silence after triage and payout was reduced without clear explanation. #ghosting #lowball"
 ```
 
 ## Supported Platforms
@@ -65,7 +68,10 @@ reviews:
 | `payment_reliability` | yes | `excellent`, `good`, `average`, `poor`, `unpaid`, `not-applicable`, `unknown` |
 | `scope_accuracy` | yes | `excellent`, `good`, `average`, `poor`, `unknown` |
 | `communication` | yes | `excellent`, `good`, `average`, `poor`, `none`, `unknown` |
+| `tags` | no | list of lowercase slugs; Issue submissions generate this from known hashtags in `note` |
 | `note` | no | max 500 characters |
+
+Known problem tags: `cvssmagic`, `scam`, `ghosting`, `lowball`, `slowpay`, `scopechaos`, `wontfix`.
 
 ## Duplicate Policy
 
