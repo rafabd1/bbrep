@@ -1,0 +1,492 @@
+"""
+Snapchat Bug Bounty Program Data Model and Validator
+"""
+
+from __future__ import annotations
+
+import json
+import logging
+import re
+from dataclasses import dataclass, field, asdict
+from enum import Enum
+from pathlib import Path
+from typing import Any, Dict, Final, List, Optional, Pattern, Union, Set
+
+# Configure module-level logger
+logger: logging.Logger = logging.getLogger(__name__)
+
+
+class Rating(Enum):
+    """Enumeration for overall rating values."""
+
+    ONE = 1
+    TWO = 2
+    THREE = 3
+    FOUR = 4
+    FIVE = 5
+
+    @classmethod
+    def from_int(cls, value: int) -> "Rating":
+        """Create Rating from integer with validation.
+
+        Args:
+            value: Integer rating value (1-5).
+
+        Returns:
+            Rating enum member.
+
+        Raises:
+            ValueError: If value is not between 1 and 5.
+        """
+        try:
+            return cls(value)
+        except ValueError as exc:
+            raise ValueError(f"Invalid rating value: {value}. Must be 1-5.") from exc
+
+
+class ResponseTime(Enum):
+    """Enumeration for response time categories."""
+
+    FAST = "fast"
+    MEDIUM = "medium"
+    SLOW = "slow"
+
+    @classmethod
+    def from_string(cls, value: str) -> "ResponseTime":
+        """Create ResponseTime from string with validation.
+
+        Args:
+            value: String representation of response time.
+
+        Returns:
+            ResponseTime enum member.
+
+        Raises:
+            ValueError: If value is not a valid response time.
+        """
+        normalized: str = value.strip().lower()
+        for member in cls:
+            if member.value == normalized:
+                return member
+        raise ValueError(f"Invalid response time: '{value}'. Must be one of {[m.value for m in cls]}")
+
+
+class QualityLevel(Enum):
+    """Enumeration for quality-based fields (triage, payment, scope, communication)."""
+
+    POOR = "poor"
+    AVERAGE = "average"
+    GOOD = "good"
+    EXCELLENT = "excellent"
+
+    @classmethod
+    def from_string(cls, value: str) -> "QualityLevel":
+        """Create QualityLevel from string with validation.
+
+        Args:
+            value: String representation of quality level.
+
+        Returns:
+            QualityLevel enum member.
+
+        Raises:
+            ValueError: If value is not a valid quality level.
+        """
+        normalized: str = value.strip().lower()
+        for member in cls:
+            if member.value == normalized:
+                return member
+        raise ValueError(
+            f"Invalid quality level: '{value}'. Must be one of {[m.value for m in cls]}"
+        )
+
+
+# Compiled regex for URL validation
+_URL_PATTERN: Pattern[str] = re.compile(
+    r"^https?://"  # http:// or https://
+    r"([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}"  # domain
+    r"(:\d+)?"  # optional port
+    r"(/.*)?$"  # optional path
+)
+
+# Allowed display sites
+_ALLOWED_SITES: Final[Set[str]] = {"github", "gitlab", "bitbucket", "website"}
+
+# Maximum length for public note
+_MAX_NOTE_LENGTH: Final[int] = 2000
+
+# Required keys for dictionary/JSON deserialization
+_REQUIRED_KEYS: Final[Set[str]] = {
+    "program_name", "platform", "program_url", "display_on_site",
+    "overall_rating", "response_time", "triage_quality",
+    "payment_reliability", "scope_accuracy", "communication", "public_note"
+}
+
+# String fields that must be non-empty
+_REQUIRED_STRING_FIELDS: Final[Set[str]] = {"program_name", "platform"}
+
+
+def validate_url(url: str) -> str:
+    """
+    Validate and normalize a URL string.
+
+    Args:
+        url: The URL to validate.
+
+    Returns:
+        The validated and stripped URL.
+
+    Raises:
+        ValueError: If the URL is invalid or empty.
+        TypeError: If url is not a string.
+    """
+    if not isinstance(url, str):
+        raise TypeError(f"URL must be a string, got {type(url).__name__}.")
+
+    stripped: str = url.strip()
+    if not stripped:
+        raise ValueError("URL must be a non-empty string.")
+
+    if not _URL_PATTERN.match(stripped):
+        raise ValueError(f"Invalid URL format: '{url}'")
+
+    return stripped
+
+
+def validate_display_site(site: str) -> str:
+    """
+    Validate the display site field.
+
+    Args:
+        site: The site name to validate.
+
+    Returns:
+        The validated site name.
+
+    Raises:
+        ValueError: If the site name is invalid.
+        TypeError: If site is not a string.
+    """
+    if not isinstance(site, str):
+        raise TypeError(f"Display site must be a string, got {type(site).__name__}.")
+
+    normalized: str = site.strip().lower()
+    if not normalized:
+        raise ValueError("Display site must be a non-empty string.")
+
+    if normalized not in _ALLOWED_SITES:
+        raise ValueError(
+            f"Invalid display site: '{site}'. Must be one of {sorted(_ALLOWED_SITES)}"
+        )
+    return normalized
+
+
+def validate_public_note(note: str) -> str:
+    """
+    Validate the public note field.
+
+    Args:
+        note: The public note to validate.
+
+    Returns:
+        The validated note.
+
+    Raises:
+        ValueError: If the note is empty or too long.
+        TypeError: If note is not a string.
+    """
+    if not isinstance(note, str):
+        raise TypeError(f"Public note must be a string, got {type(note).__name__}.")
+
+    stripped: str = note.strip()
+    if not stripped:
+        raise ValueError("Public note must be a non-empty string.")
+
+    if len(stripped) > _MAX_NOTE_LENGTH:
+        raise ValueError(
+            f"Public note too long ({len(stripped)} chars). Maximum is {_MAX_NOTE_LENGTH}."
+        )
+
+    return stripped
+
+
+def validate_non_empty_string(value: str, field_name: str) -> str:
+    """
+    Validate that a string field is non-empty.
+
+    Args:
+        value: The string value to validate.
+        field_name: The name of the field (for error messages).
+
+    Returns:
+        The validated string.
+
+    Raises:
+        ValueError: If value is empty.
+        TypeError: If value is not a string.
+    """
+    if not isinstance(value, str):
+        raise TypeError(f"Field '{field_name}' must be a string, got {type(value).__name__}.")
+
+    stripped: str = value.strip()
+    if not stripped:
+        raise ValueError(f"Field '{field_name}' must be a non-empty string.")
+
+    return stripped
+
+
+@dataclass(frozen=True)
+class SnapchatProgram:
+    """
+    Immutable data model representing a Snapchat bug bounty program entry.
+
+    Attributes:
+        program_name: The name of the program.
+        platform: The platform hosting the program.
+        program_url: The URL to the program.
+        display_on_site: Where this data is displayed.
+        overall_rating: Overall rating (1-5).
+        response_time: Response time category.
+        triage_quality: Quality of triage.
+        payment_reliability: Reliability of payments.
+        scope_accuracy: Accuracy of scope definition.
+        communication: Quality of communication.
+        public_note: Public note about the program.
+    """
+
+    program_name: str
+    platform: str
+    program_url: str
+    display_on_site: str
+    overall_rating: int
+    response_time: str
+    triage_quality: str
+    payment_reliability: str
+    scope_accuracy: str
+    communication: str
+    public_note: str
+
+    # Internal validated fields (not part of public API)
+    _validated_url: str = field(init=False, repr=False)
+    _validated_display: str = field(init=False, repr=False)
+    _validated_note: str = field(init=False, repr=False)
+
+    def __post_init__(self) -> None:
+        """Validate all fields after initialization."""
+        try:
+            # Validate and store validated versions
+            object.__setattr__(self, "_validated_url", validate_url(self.program_url))
+            object.__setattr__(self, "_validated_display", validate_display_site(self.display_on_site))
+            object.__setattr__(self, "_validated_note", validate_public_note(self.public_note))
+
+            # Validate enums
+            Rating.from_int(self.overall_rating)
+            ResponseTime.from_string(self.response_time)
+            QualityLevel.from_string(self.triage_quality)
+            QualityLevel.from_string(self.payment_reliability)
+            QualityLevel.from_string(self.scope_accuracy)
+            QualityLevel.from_string(self.communication)
+
+            # Validate required string fields
+            for field_name in _REQUIRED_STRING_FIELDS:
+                value: str = getattr(self, field_name)
+                validate_non_empty_string(value, field_name)
+
+            logger.info("SnapchatProgram validated successfully: %s", self.program_name)
+
+        except (ValueError, TypeError) as exc:
+            logger.error("Validation failed for SnapchatProgram '%s': %s", self.program_name, exc)
+            raise
+
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Convert the program data to a dictionary.
+
+        Returns:
+            A dictionary representation of the program.
+        """
+        return asdict(self)
+
+    def to_json(self, indent: int = 2) -> str:
+        """
+        Serialize the program data to JSON.
+
+        Args:
+            indent: Number of spaces for JSON indentation.
+
+        Returns:
+            A JSON string representation.
+
+        Raises:
+            TypeError: If the object is not JSON serializable.
+        """
+        try:
+            return json.dumps(self.to_dict(), indent=indent, ensure_ascii=False)
+        except TypeError as exc:
+            logger.error("Failed to serialize to JSON: %s", exc)
+            raise
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "SnapchatProgram":
+        """
+        Create a SnapchatProgram instance from a dictionary.
+
+        Args:
+            data: Dictionary containing program data.
+
+        Returns:
+            A new SnapchatProgram instance.
+
+        Raises:
+            ValueError: If required keys are missing or data is invalid.
+            TypeError: If data is not a dictionary.
+        """
+        if not isinstance(data, dict):
+            raise TypeError(f"Data must be a dictionary, got {type(data).__name__}.")
+
+        missing_keys: Set[str] = _REQUIRED_KEYS - data.keys()
+        if missing_keys:
+            raise ValueError(f"Missing required keys: {sorted(missing_keys)}")
+
+        try:
+            return cls(**{k: data[k] for k in _REQUIRED_KEYS})
+        except TypeError as exc:
+            raise ValueError(f"Invalid data for SnapchatProgram: {exc}") from exc
+
+    @classmethod
+    def from_json(cls, json_string: str) -> "SnapchatProgram":
+        """
+        Create a SnapchatProgram instance from a JSON string.
+
+        Args:
+            json_string: JSON string containing program data.
+
+        Returns:
+            A new SnapchatProgram instance.
+
+        Raises:
+            ValueError: If JSON is invalid or data is missing required fields.
+            TypeError: If json_string is not a string.
+        """
+        if not isinstance(json_string, str):
+            raise TypeError(f"JSON string must be a string, got {type(json_string).__name__}.")
+
+        try:
+            data: Dict[str, Any] = json.loads(json_string)
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"Invalid JSON string: {exc}") from exc
+
+        return cls.from_dict(data)
+
+    @classmethod
+    def from_json_file(cls, file_path: Union[str, Path]) -> "SnapchatProgram":
+        """
+        Create a SnapchatProgram instance from a JSON file.
+
+        Args:
+            file_path: Path to the JSON file.
+
+        Returns:
+            A new SnapchatProgram instance.
+
+        Raises:
+            FileNotFoundError: If the file does not exist.
+            ValueError: If JSON is invalid or data is missing required fields.
+            TypeError: If file_path is not a string or Path.
+        """
+        if not isinstance(file_path, (str, Path)):
+            raise TypeError(f"File path must be a string or Path, got {type(file_path).__name__}.")
+
+        path: Path = Path(file_path) if isinstance(file_path, str) else file_path
+
+        if not path.exists():
+            raise FileNotFoundError(f"File not found: {path}")
+
+        if not path.is_file():
+            raise ValueError(f"Path is not a file: {path}")
+
+        try:
+            content: str = path.read_text(encoding="utf-8")
+        except (IOError, OSError) as exc:
+            raise IOError(f"Failed to read file {path}: {exc}") from exc
+
+        return cls.from_json(content)
+
+    def to_json_file(self, file_path: Union[str, Path], indent: int = 2) -> None:
+        """
+        Serialize the program data to a JSON file.
+
+        Args:
+            file_path: Path to write the JSON file.
+            indent: Number of spaces for JSON indentation.
+
+        Raises:
+            TypeError: If the object is not JSON serializable.
+            IOError: If the file cannot be written.
+        """
+        if not isinstance(file_path, (str, Path)):
+            raise TypeError(f"File path must be a string or Path, got {type(file_path).__name__}.")
+
+        path: Path = Path(file_path) if isinstance(file_path, str) else file_path
+
+        try:
+            json_content: str = self.to_json(indent=indent)
+            path.write_text(json_content, encoding="utf-8")
+            logger.info("SnapchatProgram written to file: %s", path)
+        except (IOError, OSError) as exc:
+            raise IOError(f"Failed to write file {path}: {exc}") from exc
+
+    def __repr__(self) -> str:
+        """Return a string representation of the program."""
+        return (
+            f"SnapchatProgram(program_name='{self.program_name}', "
+            f"platform='{self.platform}', "
+            f"overall_rating={self.overall_rating})"
+        )
+
+
+# Example usage and testing
+if __name__ == "__main__":
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+
+    # Example data
+    example_data: Dict[str, Any] = {
+        "program_name": "Snapchat Bug Bounty",
+        "platform": "HackerOne",
+        "program_url": "https://hackerone.com/snapchat",
+        "display_on_site": "github",
+        "overall_rating": 1,
+        "response_time": "medium",
+        "triage_quality": "poor",
+        "payment_reliability": "good",
+        "scope_accuracy": "average",
+        "communication": "poor",
+        "public_note": "Snapchat's triage basically provides meaningless excuses to invalidate vulnerabilities they don't want to fix. The program is unfair and misleading overall."
+    }
+
+    try:
+        # Create program from dictionary
+        program: SnapchatProgram = SnapchatProgram.from_dict(example_data)
+        print(f"Created program: {program}")
+        print(f"JSON output:\n{program.to_json()}")
+
+        # Create program from JSON string
+        json_str: str = program.to_json()
+        program_from_json: SnapchatProgram = SnapchatProgram.from_json(json_str)
+        print(f"Recreated from JSON: {program_from_json}")
+
+        # Write to file
+        program.to_json_file("snapchat_program.json")
+        print("Written to file: snapchat_program.json")
+
+        # Read from file
+        program_from_file: SnapchatProgram = SnapchatProgram.from_json_file("snapchat_program.json")
+        print(f"Read from file: {program_from_file}")
+
+    except (ValueError, TypeError, IOError) as exc:
+        logger.error("Error: %s", exc)
+        raise
