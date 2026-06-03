@@ -569,8 +569,13 @@ h2 {
 
 .review-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
   gap: 10px;
+}
+
+.review-grid .pill {
+  justify-content: flex-start;
+  width: 100%;
 }
 
 .review-note {
@@ -632,10 +637,6 @@ h2 {
     grid-area: payment;
   }
 
-  .review-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-
   .generator-output {
     position: static;
     padding: 22px 0 0;
@@ -660,26 +661,33 @@ h2 {
     flex-wrap: wrap;
   }
 
-  .stat-strip,
   .feed-item,
-  .review-grid,
   .generator-form,
   .advanced-filter-grid {
     grid-template-columns: 1fr;
   }
 
+  .stat-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .program-row {
+    grid-template-areas:
+      "main rating"
+      "platform rating"
+      "response response"
+      "payment payment";
     min-height: 0;
     padding: 14px 0;
   }
 
   .stat {
-    border-top: 1px solid var(--line);
-    border-left: 0;
+    border-top: 0;
+    border-left: 1px solid var(--line);
   }
 
   .stat:first-child {
-    border-top: 0;
+    border-left: 0;
   }
 
   .output-actions {

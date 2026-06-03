@@ -1,3 +1,5 @@
+<img src="site/public/bbrep-icon.svg" alt="bbrep icon" width="72" height="72" />
+
 # bbrep
 
 bbrep is a community-maintained reputation index for public bug bounty and vulnerability disclosure programs.
