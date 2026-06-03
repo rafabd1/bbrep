@@ -17,13 +17,13 @@ export const qualityScores = {
 };
 
 export const problemTags = {
-  cvssmagic: { emoji: "\u{1FA84}", label: "CVSS magic" },
-  scam: { emoji: "\u26A0\uFE0F", label: "scam" },
+  cvssmagic: { emoji: "\u{1F3A9}", label: "CVSS magic" },
+  scam: { emoji: "\u{1F480}", label: "scam" },
   ghosting: { emoji: "\u{1F47B}", label: "ghosting" },
-  lowball: { emoji: "\u{1F4B8}", label: "lowball" },
-  slowpay: { emoji: "\u23F3", label: "slow pay" },
-  scopechaos: { emoji: "\u{1F9E9}", label: "scope chaos" },
-  wontfix: { emoji: "\u{1F6AB}", label: "wontfix loop" },
+  lowball: { emoji: "\u{1FA99}", label: "lowball" },
+  slowpay: { emoji: "\u{1F570}\uFE0F", label: "slow pay" },
+  scopechaos: { emoji: "\u{1F9E8}", label: "scope chaos" },
+  wontfix: { emoji: "\u{1F6D1}", label: "wontfix loop" },
 };
 
 const problemTagAliases = {
