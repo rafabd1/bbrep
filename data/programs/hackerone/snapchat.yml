@@ -1,4 +1,4 @@
-﻿schema_version: 1
+schema_version: 1
 program:
   name: Snapchat
   platform: hackerone
@@ -8,36 +8,53 @@ reviews:
   - reviewer:
       github: internet-signal
       display: anonymous
-    experience_date: "2025-09"
-    submitted_at: "2025-09-21"
+    experience_date: 2025-09
+    submitted_at: '2025-09-21'
     rating: 2
     response_time: slow
     triage_quality: average
     payment_reliability: poor
     scope_accuracy: average
     communication: poor
-    note: Snapchat has some public praise, but broader researcher feedback is mixed enough that the practical experience looks unreliable. * Internet-sourced review.
+    note: Snapchat has some public praise, but broader researcher feedback is mixed
+      enough that the practical experience looks unreliable. * Internet-sourced review.
   - reviewer:
       github: internet-signal-a
       display: anonymous
-    experience_date: "2026-04"
-    submitted_at: "2026-04-08"
+    experience_date: 2026-04
+    submitted_at: '2026-04-08'
     rating: 4
     response_time: medium
     triage_quality: good
     payment_reliability: good
     scope_accuracy: good
     communication: good
-    note: Snapchat has public positive feedback from a researcher who reported multiple IDORs and received a meaningful payout. * Internet-sourced review.
+    note: Snapchat has public positive feedback from a researcher who reported multiple
+      IDORs and received a meaningful payout. * Internet-sourced review.
   - reviewer:
       github: internet-signal-b
       display: anonymous
-    experience_date: "2026-02"
-    submitted_at: "2026-02-06"
+    experience_date: 2026-02
+    submitted_at: '2026-02-06'
     rating: 2
     response_time: slow
     triage_quality: average
     payment_reliability: poor
     scope_accuracy: average
     communication: poor
-    note: "Snapchat still looks inconsistent overall: some payouts exist, but the practical community reputation is not reliably positive. * Internet-sourced review."
+    note: 'Snapchat still looks inconsistent overall: some payouts exist, but the
+      practical community reputation is not reliably positive. * Internet-sourced
+      review.'
+  - reviewer:
+      github: rafabd1
+      display: github
+    experience_date: 2026-06
+    submitted_at: '2026-06-03'
+    rating: 1
+    response_time: medium
+    triage_quality: poor
+    payment_reliability: good
+    scope_accuracy: average
+    communication: poor
+    note: Snapchat's triage basically provides meaningless excuses to invalidate vulnerabilities
+      they don't want to fix. The program is unfair and misleading overall.
