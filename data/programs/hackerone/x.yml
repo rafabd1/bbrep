@@ -1,0 +1,22 @@
+schema_version: 1
+program:
+  name: X
+  platform: hackerone
+  slug: x
+  program_url: https://hackerone.com/x
+reviews:
+  - reviewer:
+      github: rafabd1
+      display: github
+    experience_date: 2026-06
+    submitted_at: '2026-06-03'
+    rating: 4
+    response_time: medium
+    triage_quality: average
+    payment_reliability: good
+    scope_accuracy: good
+    communication: average
+    note: The X team is quite receptive to valid vulnerabilities, though in some cases
+      they end up marking real flaws as 'by design', even though their communication
+      is transparent about the reason. In my experience, they have also paid a small
+      bonus when the issue was valid but already known internally.

@@ -4,17 +4,17 @@ Static snapshot generated from `data/programs`.
 
 | Metric | Value |
 | --- | ---: |
-| Programs | 26 |
-| Reviews | 47 |
+| Programs | 27 |
+| Reviews | 48 |
 | Platforms | 5 |
-| Average program rating | 2.84 |
+| Average program rating | 2.89 |
 
 ## Platforms
 
 | Platform | Programs |
 | --- | ---: |
 | bugcrowd | 3 |
-| hackerone | 14 |
+| hackerone | 15 |
 | immunefi | 2 |
 | intigriti | 1 |
 | self-hosted | 6 |
@@ -35,6 +35,7 @@ Static snapshot generated from `data/programs`.
 | Chrome | self-hosted | 2 | 4.00 | `data/programs/self-hosted/chrome.yml` |
 | GitHub | hackerone | 1 | 4.00 | `data/programs/hackerone/github.yml` |
 | Valve | hackerone | 1 | 4.00 | `data/programs/hackerone/valve.yml` |
+| X | hackerone | 1 | 4.00 | `data/programs/hackerone/x.yml` |
 | Yahoo | intigriti | 1 | 4.00 | `data/programs/intigriti/yahoo.yml` |
 | Coinbase | hackerone | 2 | 3.50 | `data/programs/hackerone/coinbase.yml` |
 | Google VRP | self-hosted | 4 | 3.50 | `data/programs/self-hosted/google-vrp.yml` |
