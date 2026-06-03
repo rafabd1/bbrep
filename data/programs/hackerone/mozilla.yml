@@ -41,3 +41,15 @@ reviews:
     scope_accuracy: average
     communication: average
     note: Mozilla has at least some mixed recent comments, so it should be treated as strong but not perfect. * Internet-sourced review.
+  - reviewer:
+      github: rafabd1
+      display: github
+    experience_date: "2026-06"
+    submitted_at: "2026-06-03"
+    rating: 5
+    response_time: medium
+    triage_quality: excellent
+    payment_reliability: good
+    scope_accuracy: good
+    communication: good
+    note: Mozilla has a very fair triage process, with good bounties and good responses.
