@@ -1,0 +1,387 @@
+"""
+GitLab HackerOne Program Data Model
+
+This module provides a robust, type-safe data model for representing
+a bug bounty program on HackerOne, specifically for GitLab.
+"""
+
+from __future__ import annotations
+
+import json
+import logging
+import re
+from dataclasses import dataclass, field, asdict
+from enum import Enum
+from typing import Any, Dict, Final, List, Optional, Union, Set
+from urllib.parse import urlparse
+
+# Configure module-level logger
+logger = logging.getLogger(__name__)
+
+
+class Rating(int, Enum):
+    """Enumeration for valid overall ratings (1-5)."""
+    ONE = 1
+    TWO = 2
+    THREE = 3
+    FOUR = 4
+    FIVE = 5
+
+    @classmethod
+    def from_int(cls, value: int) -> "Rating":
+        """Convert an integer to a Rating, with validation."""
+        if not isinstance(value, int):
+            raise TypeError(f"Rating must be an integer, got {type(value).__name__}")
+        if value < 1 or value > 5:
+            raise ValueError(f"Rating must be between 1 and 5, got {value}")
+        return cls(value)
+
+
+class ResponseTime(str, Enum):
+    """Enumeration for response time categories."""
+    FAST = "fast"
+    MEDIUM = "medium"
+    SLOW = "slow"
+    VERY_SLOW = "very_slow"
+
+    @classmethod
+    def from_string(cls, value: str) -> "ResponseTime":
+        """Convert a string to a ResponseTime, with validation."""
+        if not isinstance(value, str):
+            raise TypeError(f"ResponseTime must be a string, got {type(value).__name__}")
+        normalized = value.strip().lower()
+        if normalized not in cls._value2member_map_:
+            raise ValueError(f"Invalid response time: '{value}'. Must be one of {list(cls)}")
+        return cls(normalized)
+
+
+class QualityRating(str, Enum):
+    """Enumeration for quality ratings (good/average/bad)."""
+    GOOD = "good"
+    AVERAGE = "average"
+    BAD = "bad"
+
+    @classmethod
+    def from_string(cls, value: str) -> "QualityRating":
+        """Convert a string to a QualityRating, with validation."""
+        if not isinstance(value, str):
+            raise TypeError(f"QualityRating must be a string, got {type(value).__name__}")
+        normalized = value.strip().lower()
+        if normalized not in cls._value2member_map_:
+            raise ValueError(f"Invalid quality rating: '{value}'. Must be one of {list(cls)}")
+        return cls(normalized)
+
+
+@dataclass(frozen=True)
+class Ratings:
+    """
+    Immutable data class representing detailed ratings for a bug bounty program.
+
+    Attributes:
+        response_time: Speed of response from the program.
+        triage_quality: Quality of triage process.
+        payment_reliability: Reliability of payments.
+        scope_accuracy: Accuracy of program scope definition.
+        communication: Quality of communication with researchers.
+    """
+    response_time: ResponseTime
+    triage_quality: QualityRating
+    payment_reliability: QualityRating
+    scope_accuracy: QualityRating
+    communication: QualityRating
+
+    def __post_init__(self) -> None:
+        """Validate all fields after initialization."""
+        if not isinstance(self.response_time, ResponseTime):
+            raise TypeError(f"response_time must be a ResponseTime enum, got {type(self.response_time).__name__}")
+        for field_name in ("triage_quality", "payment_reliability", "scope_accuracy", "communication"):
+            value = getattr(self, field_name)
+            if not isinstance(value, QualityRating):
+                raise TypeError(f"{field_name} must be a QualityRating enum, got {type(value).__name__}")
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, str]) -> "Ratings":
+        """
+        Create a Ratings instance from a dictionary with string values.
+
+        Args:
+            data: Dictionary containing rating values as strings.
+
+        Returns:
+            A new Ratings instance.
+
+        Raises:
+            KeyError: If required keys are missing.
+            ValueError: If values are invalid.
+            TypeError: If input is not a dictionary.
+        """
+        if not isinstance(data, dict):
+            raise TypeError(f"Expected dict, got {type(data).__name__}")
+
+        required_keys: Set[str] = {"response_time", "triage_quality", "payment_reliability", "scope_accuracy", "communication"}
+        missing_keys = required_keys - set(data.keys())
+        if missing_keys:
+            raise KeyError(f"Missing required keys: {missing_keys}")
+
+        try:
+            return cls(
+                response_time=ResponseTime.from_string(data["response_time"]),
+                triage_quality=QualityRating.from_string(data["triage_quality"]),
+                payment_reliability=QualityRating.from_string(data["payment_reliability"]),
+                scope_accuracy=QualityRating.from_string(data["scope_accuracy"]),
+                communication=QualityRating.from_string(data["communication"]),
+            )
+        except (ValueError, TypeError) as e:
+            logger.error("Failed to create Ratings from dict: %s", e)
+            raise
+
+
+@dataclass(frozen=True)
+class HackerOneProgram:
+    """
+    Immutable data class representing a HackerOne bug bounty program.
+
+    Attributes:
+        program_name: Name of the program (e.g., "GitLab").
+        platform: Platform hosting the program (e.g., "hackerone").
+        program_url: URL to the program's page.
+        display_on_site: Where the program is displayed (e.g., "github").
+        overall_rating: Overall rating from 1 to 5.
+        ratings: Detailed ratings for various aspects.
+        public_note: Public note about the program.
+    """
+
+    program_name: str
+    platform: str
+    program_url: str
+    display_on_site: str
+    overall_rating: Rating
+    ratings: Ratings
+    public_note: str = ""
+
+    # Constants for validation
+    VALID_PLATFORMS: Final[frozenset[str]] = frozenset({"hackerone", "bugcrowd", "intigriti", "yeswehack"})
+    VALID_DISPLAY_SITES: Final[frozenset[str]] = frozenset({"github", "gitlab", "website", "blog"})
+    URL_PATTERN: Final[re.Pattern] = re.compile(
+        r'^https?://'  # http:// or https://
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|'  # domain...
+        r'localhost|'  # localhost...
+        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
+        r'(?::\d+)?'  # optional port
+        r'(?:/?|[/?]\S+)$', re.IGNORECASE
+    )
+
+    def __post_init__(self) -> None:
+        """Validate all fields after initialization."""
+        # Validate program_name
+        if not isinstance(self.program_name, str) or not self.program_name.strip():
+            raise ValueError("program_name must be a non-empty string")
+        if len(self.program_name) > 100:
+            raise ValueError("program_name must be 100 characters or less")
+
+        # Validate platform
+        if not isinstance(self.platform, str) or not self.platform.strip():
+            raise ValueError("platform must be a non-empty string")
+        if self.platform.strip().lower() not in self.VALID_PLATFORMS:
+            logger.warning("Platform '%s' is not in the known list: %s", self.platform, self.VALID_PLATFORMS)
+
+        # Validate URL
+        if not isinstance(self.program_url, str) or not self.program_url.strip():
+            raise ValueError("program_url must be a non-empty string")
+        if not self.URL_PATTERN.match(self.program_url):
+            raise ValueError(f"program_url must be a valid URL, got '{self.program_url}'")
+        if len(self.program_url) > 2048:
+            raise ValueError("program_url must be 2048 characters or less")
+
+        # Validate display_on_site
+        if not isinstance(self.display_on_site, str) or not self.display_on_site.strip():
+            raise ValueError("display_on_site must be a non-empty string")
+        if self.display_on_site.strip().lower() not in self.VALID_DISPLAY_SITES:
+            logger.warning("Display site '%s' is not in the known list: %s", self.display_on_site, self.VALID_DISPLAY_SITES)
+
+        # Validate overall_rating
+        if not isinstance(self.overall_rating, Rating):
+            raise TypeError(f"overall_rating must be a Rating enum, got {type(self.overall_rating).__name__}")
+
+        # Validate ratings
+        if not isinstance(self.ratings, Ratings):
+            raise TypeError(f"ratings must be a Ratings instance, got {type(self.ratings).__name__}")
+
+        # Validate public_note
+        if not isinstance(self.public_note, str):
+            raise TypeError(f"public_note must be a string, got {type(self.public_note).__name__}")
+        if len(self.public_note) > 5000:
+            raise ValueError("public_note must be 5000 characters or less")
+
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Convert the program to a dictionary for serialization.
+
+        Returns:
+            Dictionary representation of the program with all fields.
+        """
+        return {
+            "program_name": self.program_name,
+            "platform": self.platform,
+            "program_url": self.program_url,
+            "display_on_site": self.display_on_site,
+            "overall_rating": self.overall_rating.value,
+            "ratings": {
+                "response_time": self.ratings.response_time.value,
+                "triage_quality": self.ratings.triage_quality.value,
+                "payment_reliability": self.ratings.payment_reliability.value,
+                "scope_accuracy": self.ratings.scope_accuracy.value,
+                "communication": self.ratings.communication.value,
+            },
+            "public_note": self.public_note,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "HackerOneProgram":
+        """
+        Create a HackerOneProgram instance from a dictionary.
+
+        Args:
+            data: Dictionary containing program data.
+
+        Returns:
+            A new HackerOneProgram instance.
+
+        Raises:
+            KeyError: If required keys are missing.
+            ValueError: If values are invalid.
+            TypeError: If input is not a dictionary.
+        """
+        if not isinstance(data, dict):
+            raise TypeError(f"Expected dict, got {type(data).__name__}")
+
+        required_keys: Set[str] = {"program_name", "platform", "program_url", "display_on_site", "overall_rating", "ratings"}
+        missing_keys = required_keys - set(data.keys())
+        if missing_keys:
+            raise KeyError(f"Missing required keys: {missing_keys}")
+
+        try:
+            ratings_data = data["ratings"]
+            if isinstance(ratings_data, dict):
+                ratings = Ratings.from_dict(ratings_data)
+            elif isinstance(ratings_data, Ratings):
+                ratings = ratings_data
+            else:
+                raise TypeError(f"ratings must be a dict or Ratings instance, got {type(ratings_data).__name__}")
+
+            return cls(
+                program_name=str(data["program_name"]).strip(),
+                platform=str(data["platform"]).strip().lower(),
+                program_url=str(data["program_url"]).strip(),
+                display_on_site=str(data["display_on_site"]).strip().lower(),
+                overall_rating=Rating.from_int(int(data["overall_rating"])),
+                ratings=ratings,
+                public_note=str(data.get("public_note", "")).strip(),
+            )
+        except (ValueError, TypeError, KeyError) as e:
+            logger.error("Failed to create HackerOneProgram from dict: %s", e)
+            raise
+
+    def to_json(self, indent: int = 2) -> str:
+        """
+        Serialize the program to a JSON string.
+
+        Args:
+            indent: Number of spaces for JSON indentation.
+
+        Returns:
+            JSON string representation of the program.
+        """
+        try:
+            return json.dumps(self.to_dict(), indent=indent, ensure_ascii=False)
+        except (TypeError, ValueError) as e:
+            logger.error("Failed to serialize to JSON: %s", e)
+            raise
+
+    @classmethod
+    def from_json(cls, json_str: str) -> "HackerOneProgram":
+        """
+        Create a HackerOneProgram instance from a JSON string.
+
+        Args:
+            json_str: JSON string containing program data.
+
+        Returns:
+            A new HackerOneProgram instance.
+
+        Raises:
+            ValueError: If JSON is invalid.
+            TypeError: If input is not a string.
+        """
+        if not isinstance(json_str, str):
+            raise TypeError(f"Expected string, got {type(json_str).__name__}")
+
+        try:
+            data = json.loads(json_str)
+            return cls.from_dict(data)
+        except json.JSONDecodeError as e:
+            logger.error("Failed to parse JSON: %s", e)
+            raise ValueError(f"Invalid JSON string: {e}") from e
+
+    def validate_url(self) -> bool:
+        """
+        Validate that the program URL is reachable (basic validation).
+
+        Returns:
+            True if URL passes basic validation, False otherwise.
+        """
+        try:
+            parsed = urlparse(self.program_url)
+            return all([parsed.scheme, parsed.netloc])
+        except Exception as e:
+            logger.warning("URL validation failed for %s: %s", self.program_url, e)
+            return False
+
+    def __str__(self) -> str:
+        """Return a human-readable string representation."""
+        return f"HackerOneProgram(name='{self.program_name}', platform='{self.platform}', rating={self.overall_rating.value})"
+
+    def __repr__(self) -> str:
+        """Return a detailed string representation."""
+        return (f"HackerOneProgram(program_name={self.program_name!r}, platform={self.platform!r}, "
+                f"program_url={self.program_url!r}, display_on_site={self.display_on_site!r}, "
+                f"overall_rating={self.overall_rating!r}, ratings={self.ratings!r}, "
+                f"public_note={self.public_note!r})")
+
+
+# Example usage and testing
+if __name__ == "__main__":
+    # Configure logging
+    logging.basicConfig(level=logging.INFO)
+
+    # Create a sample program
+    try:
+        ratings = Ratings(
+            response_time=ResponseTime.SLOW,
+            triage_quality=QualityRating.GOOD,
+            payment_reliability=QualityRating.GOOD,
+            scope_accuracy=QualityRating.AVERAGE,
+            communication=QualityRating.GOOD,
+        )
+
+        program = HackerOneProgram(
+            program_name="GitLab",
+            platform="hackerone",
+            program_url="https://hackerone.com/gitlab",
+            display_on_site="github",
+            overall_rating=Rating.FOUR,
+            ratings=ratings,
+            public_note="GitLab has quite long triage and payment times, but overall the staff is responsive and fair.",
+        )
+
+        logger.info("Created program: %s", program)
+        logger.info("JSON representation: %s", program.to_json())
+
+        # Test serialization round-trip
+        json_str = program.to_json()
+        restored = HackerOneProgram.from_json(json_str)
+        logger.info("Round-trip successful: %s", program == restored)
+
+    except (ValueError, TypeError) as e:
+        logger.error("Failed to create program: %s", e)
+        raise
