@@ -5,7 +5,7 @@ Static snapshot generated from `data/programs`.
 | Metric | Value |
 | --- | ---: |
 | Programs | 26 |
-| Reviews | 46 |
+| Reviews | 47 |
 | Platforms | 5 |
 | Average program rating | 2.84 |
 
@@ -23,8 +23,8 @@ Static snapshot generated from `data/programs`.
 
 | Program | Platform | Reviews | Rating | Source |
 | --- | --- | ---: | ---: | --- |
+| Mozilla | hackerone | 4 | 4.50 | `data/programs/hackerone/mozilla.yml` |
 | GitLab | hackerone | 3 | 4.33 | `data/programs/hackerone/gitlab.yml` |
-| Mozilla | hackerone | 3 | 4.33 | `data/programs/hackerone/mozilla.yml` |
 | Chrome | self-hosted | 2 | 4.00 | `data/programs/self-hosted/chrome.yml` |
 | GitHub | hackerone | 1 | 4.00 | `data/programs/hackerone/github.yml` |
 | Valve | hackerone | 1 | 4.00 | `data/programs/hackerone/valve.yml` |
