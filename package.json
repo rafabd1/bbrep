@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "validate": "python scripts/validate.py",
+    "build:docs": "python scripts/build_markdown.py",
     "predev": "node scripts/build-data.mjs",
     "dev": "astro dev --root site --host 127.0.0.1",
     "prebuild": "node scripts/build-data.mjs",

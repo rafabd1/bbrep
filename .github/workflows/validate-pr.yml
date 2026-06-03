@@ -49,6 +49,12 @@ jobs:
           cat validation-report.md >> "$GITHUB_STEP_SUMMARY"
           exit $status
 
+      - name: Check Markdown snapshots
+        shell: bash
+        run: |
+          python scripts/build_markdown.py
+          git diff --exit-code -- docs/stats.md docs/reviews.md
+
       - name: Build site
         run: npm run build
 
