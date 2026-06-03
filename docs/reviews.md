@@ -2,4 +2,6 @@
 
 Static review index generated from `data/programs`.
 
-No reviews yet.
+| Submitted | Program | Platform | Rating | Reviewer | Experience | Note |
+| --- | --- | --- | ---: | --- | --- | --- |
+| 2026-06-03 | test | self-hosted | up 4/5 | @rafabd1 | 2026-06 | good |
