@@ -89,6 +89,8 @@ jobs:
           Program path: \`${{ steps.convert.outputs.program_path }}\`
 
           Maintainers should review the Issue content and generated YAML before merging.
+
+          Closes #${{ github.event.issue.number }}.
           EOF
           )"
           pr_number="$(gh pr list --head "$branch" --base main --state open --json number --jq '.[0].number // ""')"

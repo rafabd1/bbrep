@@ -38,6 +38,17 @@ function ratingSymbol(value) {
       <option value="3">3+ rating</option>
       <option value="2">2+ rating</option>
     </select>
+    <select class="field" aria-label="Sort programs" data-sort>
+      <option value="rating-desc">Best rated</option>
+      <option value="reviews-desc">Most reviewed</option>
+      <option value="name-asc">Name A-Z</option>
+      <option value="platform-asc">Platform A-Z</option>
+    </select>
+    <select class="field" aria-label="Programs per page" data-page-size>
+      <option value="10">10 per page</option>
+      <option value="25">25 per page</option>
+      <option value="50">50 per page</option>
+    </select>
   </div>
 
   <div class="program-table" id="ranking-title">
@@ -55,6 +66,7 @@ function ratingSymbol(value) {
             data-name={program.name.toLowerCase()}
             data-platform={program.platform}
             data-rating={program.averageRating}
+            data-reviews={program.reviewCount}
             data-search={`${program.name} ${program.platform} ${program.slug} ${program.reviews.flatMap((review) => review.tags ?? []).join(" ")}`.toLowerCase()}
           >
             <div>
@@ -83,31 +95,95 @@ function ratingSymbol(value) {
     }
     <div class="empty" hidden data-empty-results>No programs match the current filters.</div>
   </div>
+
+  <div class="ranking-footer" data-ranking-footer hidden>
+    <span data-page-status></span>
+    <div class="pager">
+      <button class="button button-secondary" type="button" data-prev-page>Previous</button>
+      <button class="button button-secondary" type="button" data-next-page>Next</button>
+    </div>
+  </div>
 </section>
 
 <script>
   const filterRoot = document.querySelector("[data-program-filters]");
   const rows = [...document.querySelectorAll("[data-program-row]")];
   const empty = document.querySelector("[data-empty-results]");
+  const table = document.querySelector(".program-table");
+  const footer = document.querySelector("[data-ranking-footer]");
+  const status = document.querySelector("[data-page-status]");
+  const previous = document.querySelector("[data-prev-page]");
+  const next = document.querySelector("[data-next-page]");
+  let currentPage = 1;
 
-  function applyFilters() {
+  function sortRows(items, mode) {
+    const sorted = [...items];
+    sorted.sort((a, b) => {
+      if (mode === "reviews-desc") {
+        return Number(b.dataset.reviews ?? 0) - Number(a.dataset.reviews ?? 0)
+          || a.dataset.name.localeCompare(b.dataset.name);
+      }
+      if (mode === "name-asc") {
+        return a.dataset.name.localeCompare(b.dataset.name);
+      }
+      if (mode === "platform-asc") {
+        return a.dataset.platform.localeCompare(b.dataset.platform)
+          || a.dataset.name.localeCompare(b.dataset.name);
+      }
+      return Number(b.dataset.rating ?? 0) - Number(a.dataset.rating ?? 0)
+        || Number(b.dataset.reviews ?? 0) - Number(a.dataset.reviews ?? 0)
+        || a.dataset.name.localeCompare(b.dataset.name);
+    });
+    return sorted;
+  }
+
+  function render(resetPage = false) {
+    if (resetPage) currentPage = 1;
     const query = filterRoot?.querySelector("[data-search]")?.value?.toLowerCase().trim() ?? "";
     const platform = filterRoot?.querySelector("[data-platform]")?.value ?? "";
     const minRating = Number(filterRoot?.querySelector("[data-rating]")?.value ?? 0);
-    let visible = 0;
-
-    for (const row of rows) {
+    const sortMode = filterRoot?.querySelector("[data-sort]")?.value ?? "rating-desc";
+    const pageSize = Number(filterRoot?.querySelector("[data-page-size]")?.value ?? 10);
+    const filtered = rows.filter((row) => {
       const matchesQuery = !query || row.dataset.search?.includes(query);
       const matchesPlatform = !platform || row.dataset.platform === platform;
       const matchesRating = Number(row.dataset.rating ?? 0) >= minRating;
-      const show = matchesQuery && matchesPlatform && matchesRating;
-      row.hidden = !show;
-      if (show) visible += 1;
+      return matchesQuery && matchesPlatform && matchesRating;
+    });
+    const sorted = sortRows(filtered, sortMode);
+    const pageCount = Math.max(1, Math.ceil(sorted.length / pageSize));
+    currentPage = Math.min(currentPage, pageCount);
+    const start = (currentPage - 1) * pageSize;
+    const pageRows = new Set(sorted.slice(start, start + pageSize));
+
+    for (const row of rows) {
+      row.hidden = !pageRows.has(row);
+    }
+    for (const row of sorted) {
+      table?.insertBefore(row, empty);
     }
 
-    if (empty) empty.hidden = visible !== 0 || rows.length === 0;
+    if (empty) empty.hidden = sorted.length !== 0 || rows.length === 0;
+    if (footer) footer.hidden = sorted.length <= pageSize;
+    if (status) {
+      const end = Math.min(start + pageSize, sorted.length);
+      status.textContent = sorted.length
+        ? `${start + 1}-${end} of ${sorted.length} programs`
+        : "0 programs";
+    }
+    if (previous) previous.disabled = currentPage <= 1;
+    if (next) next.disabled = currentPage >= pageCount;
   }
 
-  filterRoot?.addEventListener("input", applyFilters);
-  filterRoot?.addEventListener("change", applyFilters);
+  filterRoot?.addEventListener("input", () => render(true));
+  filterRoot?.addEventListener("change", () => render(true));
+  previous?.addEventListener("click", () => {
+    currentPage = Math.max(1, currentPage - 1);
+    render();
+  });
+  next?.addEventListener("click", () => {
+    currentPage += 1;
+    render();
+  });
+  render();
 </script>
