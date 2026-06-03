@@ -12,10 +12,6 @@ Public site:
 
 https://bbrep.vercel.app/
 
-Repository:
-
-https://github.com/rafabd1/bbrep
-
 ## Submit a Review
 
 1. Fill the review fields on the contribution page.
