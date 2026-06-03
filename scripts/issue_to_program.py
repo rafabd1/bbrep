@@ -33,6 +33,12 @@ FIELD_MAP = {
     "public note": "note",
 }
 
+RESPONSE_TIME = {"fast", "medium", "slow", "ghosted", "unknown"}
+QUALITY = {"excellent", "good", "average", "poor", "unknown"}
+PAYMENT = {"excellent", "good", "average", "poor", "unpaid", "not-applicable", "unknown"}
+COMMUNICATION = {"excellent", "good", "average", "poor", "none", "unknown"}
+DISPLAY_MODES = {"github", "anonymous"}
+
 PLATFORM_ALIASES = {
     "hacker-one": "hackerone",
     "hackerone": "hackerone",
@@ -183,6 +189,56 @@ def required(fields: dict[str, str], key: str) -> str:
     return value
 
 
+def is_date(value: str, fmt: str) -> bool:
+    try:
+        dt.datetime.strptime(value, fmt)
+        return True
+    except ValueError:
+        return False
+
+
+def validate_choice(fields: dict[str, str], key: str, allowed: set[str]) -> str:
+    value = required(fields, key)
+    if value not in allowed:
+        raise ValueError(f"invalid Issue Form field: {key} must be one of {', '.join(sorted(allowed))}")
+    return value
+
+
+def validate_issue_fields(fields: dict[str, str], platform: str) -> int:
+    required(fields, "program_name")
+    required(fields, "platform")
+    program_url = required(fields, "program_url")
+    if not program_url.startswith("https://"):
+        raise ValueError("invalid Issue Form field: program_url must be an https URL")
+    if not SLUG_RE.match(platform):
+        raise ValueError("invalid Issue Form field: platform must normalize to a lowercase slug")
+
+    validate_choice(fields, "display", DISPLAY_MODES)
+    experience_date = required(fields, "experience_date")
+    if not is_date(experience_date, "%Y-%m"):
+        raise ValueError("invalid Issue Form field: experience_date must use YYYY-MM")
+
+    rating_text = required(fields, "rating")
+    try:
+        rating = int(rating_text)
+    except ValueError as exc:
+        raise ValueError("invalid Issue Form field: rating must be an integer from 1 to 5") from exc
+    if not 1 <= rating <= 5:
+        raise ValueError("invalid Issue Form field: rating must be an integer from 1 to 5")
+
+    validate_choice(fields, "response_time", RESPONSE_TIME)
+    validate_choice(fields, "triage_quality", QUALITY)
+    validate_choice(fields, "payment_reliability", PAYMENT)
+    validate_choice(fields, "scope_accuracy", QUALITY)
+    validate_choice(fields, "communication", COMMUNICATION)
+
+    note = fields.get("note", "")
+    if len(note) > 500:
+        raise ValueError("invalid Issue Form field: note must be 500 characters or fewer")
+
+    return rating
+
+
 def submitted_date(issue: dict[str, Any]) -> str:
     created_at = issue.get("created_at")
     if isinstance(created_at, str) and created_at:
@@ -190,16 +246,16 @@ def submitted_date(issue: dict[str, Any]) -> str:
     return dt.date.today().isoformat()
 
 
-def build_review(fields: dict[str, str], author: str, issue: dict[str, Any]) -> dict[str, Any]:
+def build_review(fields: dict[str, str], author: str, issue: dict[str, Any], rating: int) -> dict[str, Any]:
     note = fields.get("note", "").strip()
     review: dict[str, Any] = {
         "reviewer": {
             "github": author,
-            "display": required(fields, "display"),
+        "display": required(fields, "display"),
         },
         "experience_date": required(fields, "experience_date"),
         "submitted_at": submitted_date(issue),
-        "rating": int(required(fields, "rating")),
+        "rating": rating,
         "response_time": required(fields, "response_time"),
         "triage_quality": required(fields, "triage_quality"),
         "payment_reliability": required(fields, "payment_reliability"),
@@ -285,8 +341,9 @@ def convert(event_path: Path, github_output: Path | None, report_path: Path | No
     program_name = required(fields, "program_name")
     program_url = required(fields, "program_url")
     platform = normalize_platform(fields.get("platform", ""), program_url)
+    rating = validate_issue_fields(fields, platform)
     slug = slugify(program_name, "program")
-    review = build_review(fields, author, issue)
+    review = build_review(fields, author, issue, rating)
     path = find_program(platform, slug, program_name, program_url)
 
     existing = load_yaml(path)

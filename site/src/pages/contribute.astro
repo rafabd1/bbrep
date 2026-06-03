@@ -37,11 +37,11 @@ const knownPrograms = data.programs.map((program) => ({
         </label>
         <label>
           Program URL
-          <input class="field" name="programUrl" type="url" placeholder="https://example.com/security" required />
+          <input class="field" name="programUrl" type="url" pattern="https://.*" title="Use an https URL." placeholder="https://example.com/security" required />
         </label>
         <label>
           Display on site
-          <select class="field" name="display">
+          <select class="field" name="display" required>
             <option value="github">show GitHub handle</option>
             <option value="anonymous">anonymous</option>
           </select>
@@ -52,7 +52,7 @@ const knownPrograms = data.programs.map((program) => ({
         </label>
         <label>
           Overall rating
-          <select class="field" name="rating">
+          <select class="field" name="rating" required>
             <option value="5">5</option>
             <option value="4" selected>4</option>
             <option value="3">3</option>
@@ -62,7 +62,7 @@ const knownPrograms = data.programs.map((program) => ({
         </label>
         <label>
           Response time
-          <select class="field" name="responseTime">
+          <select class="field" name="responseTime" required>
             <option value="fast">fast</option>
             <option value="medium" selected>medium</option>
             <option value="slow">slow</option>
@@ -72,7 +72,7 @@ const knownPrograms = data.programs.map((program) => ({
         </label>
         <label>
           Triage quality
-          <select class="field" name="triageQuality">
+          <select class="field" name="triageQuality" required>
             <option value="excellent">excellent</option>
             <option value="good" selected>good</option>
             <option value="average">average</option>
@@ -82,7 +82,7 @@ const knownPrograms = data.programs.map((program) => ({
         </label>
         <label>
           Payment reliability
-          <select class="field" name="paymentReliability">
+          <select class="field" name="paymentReliability" required>
             <option value="excellent">excellent</option>
             <option value="good" selected>good</option>
             <option value="average">average</option>
@@ -94,7 +94,7 @@ const knownPrograms = data.programs.map((program) => ({
         </label>
         <label>
           Scope accuracy
-          <select class="field" name="scopeAccuracy">
+          <select class="field" name="scopeAccuracy" required>
             <option value="excellent">excellent</option>
             <option value="good" selected>good</option>
             <option value="average">average</option>
@@ -104,7 +104,7 @@ const knownPrograms = data.programs.map((program) => ({
         </label>
         <label>
           Communication
-          <select class="field" name="communication">
+          <select class="field" name="communication" required>
             <option value="excellent">excellent</option>
             <option value="good" selected>good</option>
             <option value="average">average</option>
@@ -276,6 +276,11 @@ ${value("note", "")}`;
   }
 
   copyButton?.addEventListener("click", async () => {
+    if (form && !form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
     const text = outputIssue?.textContent || "";
     if (!text) return;
     let copied = false;
