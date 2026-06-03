@@ -103,6 +103,7 @@ jobs:
           if [ -n "$pr_number" ]; then
             pr_url="$(gh pr view "$pr_number" --json url --jq .url)"
             echo "url=$pr_url" >> "$GITHUB_OUTPUT"
+            echo "number=$pr_number" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Comment on Issue
@@ -111,16 +112,22 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           marker="<!-- bbrep-review-submission-report -->"
+          validation_status="failed"
+          if grep -q "^Status: PASS" validation-report.md 2>/dev/null; then
+            validation_status="passed"
+          fi
           {
             echo "$marker"
             echo
             cat conversion-report.md 2>/dev/null || true
             echo
-            cat validation-report.md 2>/dev/null || true
-            if [ -n "${{ steps.pr.outputs.url }}" ]; then
+            echo "Validation: $validation_status"
+            if [ -n "${{ steps.pr.outputs.number }}" ]; then
               echo
-              echo "Pull request: ${{ steps.pr.outputs.url }}"
+              echo "Pull request: #${{ steps.pr.outputs.number }}"
             fi
+            echo
+            echo "Detailed validation output is available in the workflow run."
           } > issue-comment.md
           comment_id="$(
             gh api "repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments" \
