@@ -47,8 +47,8 @@ function ratingSymbol(value) {
                     <div class="reaction-row feed-reactions" aria-label="Known problem tags">
                       {review.problemTags.map((tag) => (
                         <span class="reaction" title={tag.label} aria-label={tag.label}>
-                          <span aria-hidden="true">{tag.emoji}</span>
-                          <span>{tag.key}</span>
+                          <span class="reaction-icon" aria-hidden="true">{tag.emoji}</span>
+                          <span class="reaction-count">1x</span>
                         </span>
                       ))}
                     </div>

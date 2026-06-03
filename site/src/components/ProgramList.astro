@@ -25,7 +25,7 @@ function ratingSymbol(value) {
 }
 
 function reactionLabel(tag) {
-  return `${tag.label} x${tag.count}`;
+  return `${tag.label} ${tag.count}x`;
 }
 ---
 
@@ -125,8 +125,8 @@ function reactionLabel(tag) {
                 <div class="reaction-row program-reactions" aria-label="Known problem tags">
                   {program.problemStats.map((tag) => (
                     <span class="reaction" title={reactionLabel(tag)} aria-label={reactionLabel(tag)}>
-                      <span aria-hidden="true">{tag.emoji}</span>
-                      <span>{tag.count}</span>
+                      <span class="reaction-icon" aria-hidden="true">{tag.emoji}</span>
+                      <span class="reaction-count">{tag.count}x</span>
                     </span>
                   ))}
                 </div>

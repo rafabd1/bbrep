@@ -368,16 +368,35 @@ h2 {
 }
 
 .reaction {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  min-height: 24px;
-  padding: 2px 7px;
-  border: 1px solid var(--line);
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
   color: var(--ink);
-  font-size: 12px;
   line-height: 1;
-  white-space: nowrap;
+}
+
+.reaction-icon {
+  font-size: 17px;
+  line-height: 1;
+}
+
+.reaction-count {
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  min-width: 16px;
+  padding: 1px 3px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1.1;
+  text-align: center;
+  pointer-events: none;
 }
 
 .program-reactions {
