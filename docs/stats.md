@@ -21,7 +21,10 @@ Static snapshot generated from `data/programs`.
 
 ## Problem Tags
 
-No known problem tags yet.
+| Tag | Meaning | Reviews |
+| --- | --- | ---: |
+| `#scam` | scam | 1 |
+| `#wontfix` | wontfix loop | 1 |
 
 ## Programs
 

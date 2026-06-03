@@ -56,5 +56,9 @@ reviews:
     payment_reliability: good
     scope_accuracy: average
     communication: poor
-    note: Snapchat's triage basically provides meaningless excuses to invalidate vulnerabilities
-      they don't want to fix. The program is unfair and misleading overall.
+    tags:
+      - scam
+      - wontfix
+    note: 'Snapchat''s triage basically provides meaningless excuses to invalidate
+      vulnerabilities they don''t want to fix. The program is unfair and misleading
+      overall. #scam #wontfix'
