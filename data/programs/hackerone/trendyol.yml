@@ -1,0 +1,19 @@
+schema_version: 1
+program:
+  name: Trendyol
+  platform: hackerone
+  slug: trendyol
+  program_url: https://hackerone.com/trendyol
+reviews:
+  - reviewer:
+      github: internet-signal
+      display: anonymous
+    experience_date: "2026-04"
+    submitted_at: "2026-04-20"
+    rating: 2
+    response_time: slow
+    triage_quality: poor
+    payment_reliability: poor
+    scope_accuracy: average
+    communication: poor
+    note: Trendyol appears in public complaints about reports being dismissed and later fixed, making the researcher experience look risky. * Internet-sourced review.

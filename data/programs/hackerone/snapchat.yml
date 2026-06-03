@@ -1,0 +1,43 @@
+﻿schema_version: 1
+program:
+  name: Snapchat
+  platform: hackerone
+  slug: snapchat
+  program_url: https://hackerone.com/snapchat
+reviews:
+  - reviewer:
+      github: internet-signal
+      display: anonymous
+    experience_date: "2025-09"
+    submitted_at: "2025-09-21"
+    rating: 2
+    response_time: slow
+    triage_quality: average
+    payment_reliability: poor
+    scope_accuracy: average
+    communication: poor
+    note: Snapchat has some public praise, but broader researcher feedback is mixed enough that the practical experience looks unreliable. * Internet-sourced review.
+  - reviewer:
+      github: internet-signal-a
+      display: anonymous
+    experience_date: "2026-04"
+    submitted_at: "2026-04-08"
+    rating: 4
+    response_time: medium
+    triage_quality: good
+    payment_reliability: good
+    scope_accuracy: good
+    communication: good
+    note: Snapchat has public positive feedback from a researcher who reported multiple IDORs and received a meaningful payout. * Internet-sourced review.
+  - reviewer:
+      github: internet-signal-b
+      display: anonymous
+    experience_date: "2026-02"
+    submitted_at: "2026-02-06"
+    rating: 2
+    response_time: slow
+    triage_quality: average
+    payment_reliability: poor
+    scope_accuracy: average
+    communication: poor
+    note: "Snapchat still looks inconsistent overall: some payouts exist, but the practical community reputation is not reliably positive. * Internet-sourced review."

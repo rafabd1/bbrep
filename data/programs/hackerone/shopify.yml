@@ -1,0 +1,31 @@
+schema_version: 1
+program:
+  name: Shopify
+  platform: hackerone
+  slug: shopify
+  program_url: https://hackerone.com/shopify
+reviews:
+  - reviewer:
+      github: internet-signal
+      display: anonymous
+    experience_date: "2025-09"
+    submitted_at: "2025-09-27"
+    rating: 4
+    response_time: medium
+    triage_quality: good
+    payment_reliability: good
+    scope_accuracy: good
+    communication: good
+    note: Shopify remains a useful public target with many public learning references, though competition makes ROI uneven. * Internet-sourced review.
+  - reviewer:
+      github: internet-signal-a
+      display: anonymous
+    experience_date: "2025-12"
+    submitted_at: "2025-12-26"
+    rating: 3
+    response_time: medium
+    triage_quality: average
+    payment_reliability: average
+    scope_accuracy: average
+    communication: average
+    note: Shopify is useful to study, but public discussion shows edge-case findings may be hard to classify as bounty-worthy. * Internet-sourced review.

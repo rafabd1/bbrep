@@ -1,0 +1,19 @@
+schema_version: 1
+program:
+  name: GitHub
+  platform: hackerone
+  slug: github
+  program_url: https://hackerone.com/github
+reviews:
+  - reviewer:
+      github: internet-signal
+      display: anonymous
+    experience_date: "2026-01"
+    submitted_at: "2026-01-12"
+    rating: 4
+    response_time: medium
+    triage_quality: good
+    payment_reliability: good
+    scope_accuracy: good
+    communication: good
+    note: GitHub is viewed as a serious mature program with public activity, but strong competition means only high-quality reports are worth the time. * Internet-sourced review.

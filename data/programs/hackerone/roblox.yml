@@ -1,0 +1,19 @@
+schema_version: 1
+program:
+  name: Roblox
+  platform: hackerone
+  slug: roblox
+  program_url: https://hackerone.com/roblox
+reviews:
+  - reviewer:
+      github: internet-signal
+      display: anonymous
+    experience_date: "2025-10"
+    submitted_at: "2025-10-31"
+    rating: 2
+    response_time: slow
+    triage_quality: average
+    payment_reliability: poor
+    scope_accuracy: average
+    communication: poor
+    note: Roblox appears in public stories around unresolved or ghosted early reports, so the practical researcher experience looks weak. * Internet-sourced review.

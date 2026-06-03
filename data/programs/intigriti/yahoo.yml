@@ -1,0 +1,19 @@
+﻿schema_version: 1
+program:
+  name: Yahoo
+  platform: intigriti
+  slug: yahoo
+  program_url: https://app.intigriti.com/researcher/programs/yahoo/yahoobugbounty/detail
+reviews:
+  - reviewer:
+      github: internet-signal
+      display: anonymous
+    experience_date: "2025-09"
+    submitted_at: "2025-09-21"
+    rating: 4
+    response_time: fast
+    triage_quality: good
+    payment_reliability: good
+    scope_accuracy: good
+    communication: good
+    note: Yahoo has positive public feedback around triage quality, communication, and bounty handling. * Internet-sourced review.

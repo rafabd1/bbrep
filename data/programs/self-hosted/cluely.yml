@@ -1,0 +1,31 @@
+﻿schema_version: 1
+program:
+  name: Cluely
+  platform: self-hosted
+  slug: cluely
+  program_url: https://www.bugbountydirectory.com/programs/cluely
+reviews:
+  - reviewer:
+      github: internet-signal
+      display: anonymous
+    experience_date: "2026-06"
+    submitted_at: "2026-06-02"
+    rating: 1
+    response_time: slow
+    triage_quality: poor
+    payment_reliability: unpaid
+    scope_accuracy: average
+    communication: poor
+    note: Cluely has recent public criticism around payment follow-through after a reported issue was fixed. * Internet-sourced review.
+  - reviewer:
+      github: internet-signal-a
+      display: anonymous
+    experience_date: "2026-06"
+    submitted_at: "2026-06-02"
+    rating: 1
+    response_time: medium
+    triage_quality: poor
+    payment_reliability: unpaid
+    scope_accuracy: poor
+    communication: poor
+    note: Cluely looks like a bad ROI target because public feedback claims the team patched a report without honoring the bounty. * Internet-sourced review.

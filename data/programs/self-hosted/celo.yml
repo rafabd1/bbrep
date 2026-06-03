@@ -1,0 +1,19 @@
+﻿schema_version: 1
+program:
+  name: Celo
+  platform: self-hosted
+  slug: celo
+  program_url: https://celo.org/security
+reviews:
+  - reviewer:
+      github: internet-signal
+      display: anonymous
+    experience_date: "2025-12"
+    submitted_at: "2025-12-01"
+    rating: 3
+    response_time: unknown
+    triage_quality: good
+    payment_reliability: average
+    scope_accuracy: average
+    communication: good
+    note: Celo has public governance discussion around settling outstanding bounty rewards and preserving researcher trust. * Internet-sourced review.

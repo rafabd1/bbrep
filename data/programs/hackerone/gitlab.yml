@@ -1,0 +1,31 @@
+﻿schema_version: 1
+program:
+  name: GitLab
+  platform: hackerone
+  slug: gitlab
+  program_url: https://hackerone.com/gitlab
+reviews:
+  - reviewer:
+      github: internet-signal
+      display: anonymous
+    experience_date: "2025-09"
+    submitted_at: "2025-09-04"
+    rating: 5
+    response_time: fast
+    triage_quality: excellent
+    payment_reliability: excellent
+    scope_accuracy: excellent
+    communication: excellent
+    note: GitLab has strong public feedback for engagement on high-impact reports and clear reward handling. * Internet-sourced review.
+  - reviewer:
+      github: internet-signal-a
+      display: anonymous
+    experience_date: "2026-03"
+    submitted_at: "2026-03-16"
+    rating: 4
+    response_time: medium
+    triage_quality: good
+    payment_reliability: good
+    scope_accuracy: good
+    communication: good
+    note: GitLab is mentioned as a company that appears to care about researcher reports, though the public signal is not unlimited. * Internet-sourced review.

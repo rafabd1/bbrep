@@ -1,0 +1,19 @@
+schema_version: 1
+program:
+  name: Uber
+  platform: hackerone
+  slug: uber
+  program_url: https://hackerone.com/uber
+reviews:
+  - reviewer:
+      github: internet-signal
+      display: anonymous
+    experience_date: "2025-06"
+    submitted_at: "2025-06-17"
+    rating: 3
+    response_time: medium
+    triage_quality: average
+    payment_reliability: average
+    scope_accuracy: good
+    communication: average
+    note: Uber has a mature public program, but community sentiment treats major public programs as crowded and inconsistent for ROI. * Internet-sourced review.

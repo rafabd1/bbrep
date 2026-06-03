@@ -1,0 +1,19 @@
+﻿schema_version: 1
+program:
+  name: Atlassian
+  platform: bugcrowd
+  slug: atlassian
+  program_url: https://bugcrowd.com/atlassian
+reviews:
+  - reviewer:
+      github: internet-signal
+      display: anonymous
+    experience_date: "2025-03"
+    submitted_at: "2025-03-30"
+    rating: 2
+    response_time: unknown
+    triage_quality: poor
+    payment_reliability: unknown
+    scope_accuracy: average
+    communication: poor
+    note: Atlassian has public criticism around triage escalation, minimal-impact closures, and limited feedback clarity. * Internet-sourced review.

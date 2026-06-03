@@ -1,0 +1,55 @@
+﻿schema_version: 1
+program:
+  name: Google VRP
+  platform: self-hosted
+  slug: google-vrp
+  program_url: https://bughunters.google.com/
+reviews:
+  - reviewer:
+      github: internet-signal
+      display: anonymous
+    experience_date: "2025-09"
+    submitted_at: "2025-09-21"
+    rating: 4
+    response_time: medium
+    triage_quality: good
+    payment_reliability: average
+    scope_accuracy: good
+    communication: good
+    note: Google VRP has strong public reputation, but researchers still ask about payout timing and panel decisions, so payment certainty is not perfect. * Internet-sourced review.
+  - reviewer:
+      github: internet-signal-a
+      display: anonymous
+    experience_date: "2026-03"
+    submitted_at: "2026-03-16"
+    rating: 4
+    response_time: medium
+    triage_quality: excellent
+    payment_reliability: good
+    scope_accuracy: good
+    communication: excellent
+    note: Google VRP is often contrasted positively against silent-fix programs, but public threads still mention waiting for panel outcomes and variable rewards. * Internet-sourced review.
+  - reviewer:
+      github: internet-signal-b
+      display: anonymous
+    experience_date: "2026-05"
+    submitted_at: "2026-05-14"
+    rating: 3
+    response_time: slow
+    triage_quality: average
+    payment_reliability: average
+    scope_accuracy: average
+    communication: average
+    note: Google VRP has newer complaints around response/payment expectations and dynamic reward decisions, especially for non-top-tier reports. * Internet-sourced review.
+  - reviewer:
+      github: internet-signal-c
+      display: anonymous
+    experience_date: "2025-12"
+    submitted_at: "2025-12-02"
+    rating: 3
+    response_time: slow
+    triage_quality: average
+    payment_reliability: average
+    scope_accuracy: average
+    communication: average
+    note: Google VRP feedback includes researchers waiting on panel decisions and asking how long payout can take, so practical timing can be uneven. * Internet-sourced review.

@@ -1,0 +1,19 @@
+schema_version: 1
+program:
+  name: Cloudflare
+  platform: hackerone
+  slug: cloudflare
+  program_url: https://hackerone.com/cloudflare
+reviews:
+  - reviewer:
+      github: internet-signal
+      display: anonymous
+    experience_date: "2025-11"
+    submitted_at: "2025-11-04"
+    rating: 3
+    response_time: medium
+    triage_quality: average
+    payment_reliability: average
+    scope_accuracy: good
+    communication: average
+    note: Cloudflare is a hardened target where useful findings need depth; public chatter suggests naive testing burns time quickly. * Internet-sourced review.

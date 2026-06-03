@@ -1,0 +1,19 @@
+﻿schema_version: 1
+program:
+  name: Amazon Devices and Services
+  platform: hackerone
+  slug: amazon-devices
+  program_url: https://hackerone.com/amazonvrp
+reviews:
+  - reviewer:
+      github: internet-signal
+      display: anonymous
+    experience_date: "2025-09"
+    submitted_at: "2025-09-21"
+    rating: 2
+    response_time: slow
+    triage_quality: average
+    payment_reliability: unknown
+    scope_accuracy: average
+    communication: poor
+    note: Amazon Devices has public feedback describing inconsistent communication and low-touch handling after submissions. * Internet-sourced review.

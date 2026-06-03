@@ -1,17 +1,17 @@
 :root {
-  color-scheme: light;
-  --bg: #f3efd8;
-  --ink: #20241f;
-  --muted: #6e6a5e;
-  --line: #cbc3aa;
-  --line-strong: #9f967e;
-  --field: #fffdf2;
-  --accent: #20241f;
-  --accent-ink: #f7f8f4;
-  --danger: #a53737;
-  --rating-good: #21794a;
-  --rating-mid: #8a6b12;
-  --rating-bad: #b23a34;
+  color-scheme: dark;
+  --bg: #101010;
+  --ink: #eeeeee;
+  --muted: #9a9a9a;
+  --line: #2c2c2c;
+  --line-strong: #575757;
+  --field: #181818;
+  --accent: #eeeeee;
+  --accent-ink: #101010;
+  --danger: #e06f67;
+  --rating-good: #76c893;
+  --rating-mid: #d6b55f;
+  --rating-bad: #ee7d72;
   font-family:
     ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
@@ -171,9 +171,13 @@ h2 {
 
 .toolbar {
   display: grid;
-  grid-template-columns: minmax(220px, 1fr) repeat(4, minmax(130px, 160px));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 10px;
   margin: 26px 0 14px;
+}
+
+.toolbar [data-search] {
+  grid-column: span 2;
 }
 
 .field {
@@ -192,7 +196,7 @@ h2 {
 }
 
 .field::placeholder {
-  color: #7b8378;
+  color: #777777;
 }
 
 .program-table,
@@ -228,23 +232,28 @@ h2 {
   text-decoration: none;
 }
 
+.program-row[hidden],
+.program-row.is-hidden {
+  display: none;
+}
+
 .program-row:first-child {
   border-top: 0;
 }
 
 .program-row:hover {
-  background: rgba(32, 36, 31, 0.035);
+  background: rgba(255, 255, 255, 0.045);
 }
 
 .program-name {
   font-weight: 700;
 }
 
-.source-path {
+.program-url {
   margin-top: 4px;
   color: var(--muted);
   font-size: 12px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  overflow-wrap: anywhere;
 }
 
 .badge,
@@ -335,7 +344,7 @@ h2 {
 .code-block {
   max-height: 620px;
   border: 1px solid var(--line);
-  background: #f7f8f4;
+  background: #181818;
   color: var(--ink);
   padding: 15px;
   overflow: auto;
@@ -590,6 +599,10 @@ h2 {
   .output-actions {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .toolbar [data-search] {
+    grid-column: auto;
   }
 
   .button {

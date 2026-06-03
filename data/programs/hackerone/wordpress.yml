@@ -1,0 +1,19 @@
+schema_version: 1
+program:
+  name: WordPress
+  platform: hackerone
+  slug: wordpress
+  program_url: https://hackerone.com/wordpress
+reviews:
+  - reviewer:
+      github: internet-signal
+      display: anonymous
+    experience_date: "2026-03"
+    submitted_at: "2026-03-05"
+    rating: 2
+    response_time: medium
+    triage_quality: average
+    payment_reliability: poor
+    scope_accuracy: average
+    communication: average
+    note: WordPress is visible and useful for practice, but low public reward expectations make it a weak ROI target. * Internet-sourced review.

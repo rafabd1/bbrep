@@ -27,27 +27,73 @@ function ratingSymbol(value) {
 
 <section class="shell" aria-labelledby="ranking-title">
   <div class="toolbar" data-program-filters>
-    <input class="field" type="search" placeholder="Search programs, platforms, tags..." aria-label="Search programs" data-search />
+    <input class="field" type="search" placeholder="Search programs or platforms..." aria-label="Search programs" data-search />
     <select class="field" aria-label="Filter by platform" data-platform>
       <option value="">All platforms</option>
       {platforms.map((platform) => <option value={platform}>{platform}</option>)}
     </select>
-    <select class="field" aria-label="Minimum rating" data-rating>
-      <option value="0">Any rating</option>
-      <option value="4">4+ rating</option>
-      <option value="3">3+ rating</option>
-      <option value="2">2+ rating</option>
+    <select class="field" aria-label="Minimum reputation" data-rating>
+      <option value="0">Any reputation</option>
+      <option value="4">Strong reputation</option>
+      <option value="3">Mixed or better</option>
+      <option value="2">Include weak</option>
+    </select>
+    <select class="field" aria-label="Minimum response reliability" data-response>
+      <option value="0">Any response</option>
+      <option value="3.5">Reliable response</option>
+      <option value="2.5">Acceptable response</option>
+    </select>
+    <select class="field" aria-label="Minimum payment reliability" data-payment>
+      <option value="0">Any payment</option>
+      <option value="3.5">Reliable payment</option>
+      <option value="2.5">Acceptable payment</option>
+    </select>
+    <select class="field" aria-label="Minimum report handling quality" data-triage>
+      <option value="0">Any handling</option>
+      <option value="3.5">Clear handling</option>
+      <option value="2.5">Acceptable handling</option>
+    </select>
+    <select class="field" aria-label="Minimum evidence level" data-review-count>
+      <option value="0">Any evidence</option>
+      <option value="2">2+ reviews</option>
+      <option value="3">3+ reviews</option>
     </select>
     <select class="field" aria-label="Sort programs" data-sort>
-      <option value="rating-desc">Best rated</option>
-      <option value="reviews-desc">Most reviewed</option>
-      <option value="name-asc">Name A-Z</option>
-      <option value="platform-asc">Platform A-Z</option>
+      <optgroup label="Reputation">
+        <option value="rating-desc">Highest reputation</option>
+        <option value="rating-asc">Lowest reputation</option>
+      </optgroup>
+      <optgroup label="Evidence">
+        <option value="reviews-desc">Most reviews</option>
+        <option value="reviews-asc">Fewest reviews</option>
+      </optgroup>
+      <optgroup label="Activity">
+        <option value="latest-desc">Latest review</option>
+        <option value="latest-asc">Oldest review</option>
+      </optgroup>
+      <optgroup label="Response">
+        <option value="response-desc">Fastest response</option>
+        <option value="response-asc">Slowest response</option>
+      </optgroup>
+      <optgroup label="Payment">
+        <option value="payment-desc">Most reliable payment</option>
+        <option value="payment-asc">Highest payment risk</option>
+      </optgroup>
+      <optgroup label="Handling">
+        <option value="triage-desc">Clearest handling</option>
+        <option value="triage-asc">Weakest handling</option>
+      </optgroup>
+      <optgroup label="Index">
+        <option value="name-asc">Name A-Z</option>
+        <option value="name-desc">Name Z-A</option>
+        <option value="platform-asc">Platform A-Z</option>
+        <option value="platform-desc">Platform Z-A</option>
+      </optgroup>
     </select>
-    <select class="field" aria-label="Programs per page" data-page-size>
-      <option value="10">10 per page</option>
-      <option value="25">25 per page</option>
-      <option value="50">50 per page</option>
+    <select class="field" aria-label="Programs loaded per click" data-page-size>
+      <option value="10">Show 10</option>
+      <option value="25">Show 25</option>
+      <option value="50">Show 50</option>
     </select>
   </div>
 
@@ -67,11 +113,17 @@ function ratingSymbol(value) {
             data-platform={program.platform}
             data-rating={program.averageRating}
             data-reviews={program.reviewCount}
+            data-latest={program.latestReview}
+            data-response={program.signals.response_time ?? 0}
+            data-payment={program.signals.payment_reliability ?? 0}
+            data-triage={program.signals.triage_quality ?? 0}
+            data-scope={program.signals.scope_accuracy ?? 0}
+            data-communication={program.signals.communication ?? 0}
             data-search={`${program.name} ${program.platform} ${program.slug} ${program.reviews.flatMap((review) => review.tags ?? []).join(" ")}`.toLowerCase()}
           >
             <div>
               <div class="program-name">{program.name}</div>
-              <div class="source-path">{program.sourcePath}</div>
+              <div class="program-url">{program.programUrl}</div>
             </div>
             <span class="badge">{program.platform}</span>
             <div>
@@ -99,8 +151,7 @@ function ratingSymbol(value) {
   <div class="ranking-footer" data-ranking-footer hidden>
     <span data-page-status></span>
     <div class="pager">
-      <button class="button button-secondary" type="button" data-prev-page>Previous</button>
-      <button class="button button-secondary" type="button" data-next-page>Next</button>
+      <button class="button button-secondary" type="button" data-more-programs>More</button>
     </div>
   </div>
 </section>
@@ -112,77 +163,146 @@ function ratingSymbol(value) {
   const table = document.querySelector(".program-table");
   const footer = document.querySelector("[data-ranking-footer]");
   const status = document.querySelector("[data-page-status]");
-  const previous = document.querySelector("[data-prev-page]");
-  const next = document.querySelector("[data-next-page]");
-  let currentPage = 1;
+  const more = document.querySelector("[data-more-programs]");
+  let visibleCount = 10;
+
+  function numeric(row, key) {
+    return Number(row.dataset[key] ?? 0);
+  }
+
+  function byName(a, b) {
+    return a.dataset.name.localeCompare(b.dataset.name);
+  }
+
+  function compareSignal(a, b, key, direction) {
+    return direction * (numeric(b, key) - numeric(a, key))
+      || Number(b.dataset.reviews ?? 0) - Number(a.dataset.reviews ?? 0)
+      || byName(a, b);
+  }
 
   function sortRows(items, mode) {
     const sorted = [...items];
     sorted.sort((a, b) => {
+      if (mode === "rating-asc") {
+        return Number(a.dataset.rating ?? 0) - Number(b.dataset.rating ?? 0)
+          || Number(b.dataset.reviews ?? 0) - Number(a.dataset.reviews ?? 0)
+          || byName(a, b);
+      }
       if (mode === "reviews-desc") {
         return Number(b.dataset.reviews ?? 0) - Number(a.dataset.reviews ?? 0)
-          || a.dataset.name.localeCompare(b.dataset.name);
+          || Number(b.dataset.rating ?? 0) - Number(a.dataset.rating ?? 0)
+          || byName(a, b);
+      }
+      if (mode === "reviews-asc") {
+        return Number(a.dataset.reviews ?? 0) - Number(b.dataset.reviews ?? 0)
+          || Number(b.dataset.rating ?? 0) - Number(a.dataset.rating ?? 0)
+          || byName(a, b);
+      }
+      if (mode === "latest-desc") {
+        return String(b.dataset.latest ?? "").localeCompare(String(a.dataset.latest ?? ""))
+          || Number(b.dataset.rating ?? 0) - Number(a.dataset.rating ?? 0)
+          || byName(a, b);
+      }
+      if (mode === "latest-asc") {
+        return String(a.dataset.latest ?? "").localeCompare(String(b.dataset.latest ?? ""))
+          || Number(b.dataset.rating ?? 0) - Number(a.dataset.rating ?? 0)
+          || byName(a, b);
+      }
+      if (mode === "response-desc") {
+        return compareSignal(a, b, "response", 1);
+      }
+      if (mode === "response-asc") {
+        return compareSignal(a, b, "response", -1);
+      }
+      if (mode === "payment-desc") {
+        return compareSignal(a, b, "payment", 1);
+      }
+      if (mode === "payment-asc") {
+        return compareSignal(a, b, "payment", -1);
+      }
+      if (mode === "triage-desc") {
+        return compareSignal(a, b, "triage", 1);
+      }
+      if (mode === "triage-asc") {
+        return compareSignal(a, b, "triage", -1);
       }
       if (mode === "name-asc") {
-        return a.dataset.name.localeCompare(b.dataset.name);
+        return byName(a, b);
+      }
+      if (mode === "name-desc") {
+        return byName(b, a);
       }
       if (mode === "platform-asc") {
         return a.dataset.platform.localeCompare(b.dataset.platform)
-          || a.dataset.name.localeCompare(b.dataset.name);
+          || byName(a, b);
+      }
+      if (mode === "platform-desc") {
+        return b.dataset.platform.localeCompare(a.dataset.platform)
+          || byName(a, b);
       }
       return Number(b.dataset.rating ?? 0) - Number(a.dataset.rating ?? 0)
         || Number(b.dataset.reviews ?? 0) - Number(a.dataset.reviews ?? 0)
-        || a.dataset.name.localeCompare(b.dataset.name);
+        || byName(a, b);
     });
     return sorted;
   }
 
   function render(resetPage = false) {
-    if (resetPage) currentPage = 1;
     const query = filterRoot?.querySelector("[data-search]")?.value?.toLowerCase().trim() ?? "";
     const platform = filterRoot?.querySelector("[data-platform]")?.value ?? "";
     const minRating = Number(filterRoot?.querySelector("[data-rating]")?.value ?? 0);
+    const minResponse = Number(filterRoot?.querySelector("[data-response]")?.value ?? 0);
+    const minPayment = Number(filterRoot?.querySelector("[data-payment]")?.value ?? 0);
+    const minTriage = Number(filterRoot?.querySelector("[data-triage]")?.value ?? 0);
+    const minReviews = Number(filterRoot?.querySelector("[data-review-count]")?.value ?? 0);
     const sortMode = filterRoot?.querySelector("[data-sort]")?.value ?? "rating-desc";
     const pageSize = Number(filterRoot?.querySelector("[data-page-size]")?.value ?? 10);
+    if (resetPage) visibleCount = pageSize;
+    visibleCount = Math.max(pageSize, visibleCount);
     const filtered = rows.filter((row) => {
       const matchesQuery = !query || row.dataset.search?.includes(query);
       const matchesPlatform = !platform || row.dataset.platform === platform;
       const matchesRating = Number(row.dataset.rating ?? 0) >= minRating;
-      return matchesQuery && matchesPlatform && matchesRating;
+      const matchesResponse = Number(row.dataset.response ?? 0) >= minResponse;
+      const matchesPayment = Number(row.dataset.payment ?? 0) >= minPayment;
+      const matchesTriage = Number(row.dataset.triage ?? 0) >= minTriage;
+      const matchesReviews = Number(row.dataset.reviews ?? 0) >= minReviews;
+      return matchesQuery
+        && matchesPlatform
+        && matchesRating
+        && matchesResponse
+        && matchesPayment
+        && matchesTriage
+        && matchesReviews;
     });
     const sorted = sortRows(filtered, sortMode);
-    const pageCount = Math.max(1, Math.ceil(sorted.length / pageSize));
-    currentPage = Math.min(currentPage, pageCount);
-    const start = (currentPage - 1) * pageSize;
-    const pageRows = new Set(sorted.slice(start, start + pageSize));
+    visibleCount = Math.min(visibleCount, sorted.length || pageSize);
+    const visibleRows = sorted.slice(0, visibleCount);
+    const pageRows = new Set(visibleRows);
 
-    for (const row of rows) {
-      row.hidden = !pageRows.has(row);
-    }
     for (const row of sorted) {
       table?.insertBefore(row, empty);
     }
+    for (const row of rows) {
+      row.hidden = !pageRows.has(row);
+      row.classList.toggle("is-hidden", !pageRows.has(row));
+    }
 
     if (empty) empty.hidden = sorted.length !== 0 || rows.length === 0;
-    if (footer) footer.hidden = sorted.length <= pageSize;
+    if (footer) footer.hidden = sorted.length === 0;
     if (status) {
-      const end = Math.min(start + pageSize, sorted.length);
       status.textContent = sorted.length
-        ? `${start + 1}-${end} of ${sorted.length} programs`
+        ? `${visibleRows.length} of ${sorted.length} programs`
         : "0 programs";
     }
-    if (previous) previous.disabled = currentPage <= 1;
-    if (next) next.disabled = currentPage >= pageCount;
+    if (more) more.hidden = visibleRows.length >= sorted.length;
   }
 
   filterRoot?.addEventListener("input", () => render(true));
   filterRoot?.addEventListener("change", () => render(true));
-  previous?.addEventListener("click", () => {
-    currentPage = Math.max(1, currentPage - 1);
-    render();
-  });
-  next?.addEventListener("click", () => {
-    currentPage += 1;
+  more?.addEventListener("click", () => {
+    const pageSize = Number(filterRoot?.querySelector("[data-page-size]")?.value ?? 10);
+    visibleCount += pageSize;
     render();
   });
   render();

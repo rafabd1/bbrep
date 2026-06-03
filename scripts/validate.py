@@ -36,7 +36,10 @@ KNOWN_PLATFORMS = {
 URL_PATTERNS = {
     "hackerone": re.compile(r"^https://(www\.)?hackerone\.com/[^/?#]+/?(?:[?#].*)?$", re.I),
     "bugcrowd": re.compile(r"^https://(www\.)?bugcrowd\.com/[^/?#]+/?(?:[?#].*)?$", re.I),
-    "intigriti": re.compile(r"^https://(www\.)?intigriti\.com/programs/[^/?#]+/[^/?#]+/?(?:[?#].*)?$", re.I),
+    "intigriti": re.compile(
+        r"^https://((www\.)?intigriti\.com/programs/[^/?#]+/[^/?#]+/?|app\.intigriti\.com/researcher/programs/[^/?#]+/[^/?#]+/detail)(?:[?#].*)?$",
+        re.I,
+    ),
     "yeswehack": re.compile(r"^https://(www\.)?yeswehack\.com/programs/[^/?#]+/?(?:[?#].*)?$", re.I),
     "immunefi": re.compile(r"^https://(www\.)?immunefi\.com/bug-bounty/[^/?#]+/?(?:[?#].*)?$", re.I),
     "code4rena": re.compile(r"^https://(www\.)?code4rena\.com/[^ ]+$", re.I),

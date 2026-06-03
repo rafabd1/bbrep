@@ -1,0 +1,43 @@
+﻿schema_version: 1
+program:
+  name: Microsoft MSRC
+  platform: self-hosted
+  slug: microsoft-msrc
+  program_url: https://msrc.microsoft.com/report/vulnerability
+reviews:
+  - reviewer:
+      github: internet-signal
+      display: anonymous
+    experience_date: "2026-01"
+    submitted_at: "2026-01-10"
+    rating: 3
+    response_time: slow
+    triage_quality: average
+    payment_reliability: average
+    scope_accuracy: average
+    communication: good
+    note: Microsoft MSRC has split public feedback, with both resolved payouts and complaints about delays or silent fixes. * Internet-sourced review.
+  - reviewer:
+      github: internet-signal-a
+      display: anonymous
+    experience_date: "2026-04"
+    submitted_at: "2026-04-05"
+    rating: 4
+    response_time: medium
+    triage_quality: good
+    payment_reliability: good
+    scope_accuracy: good
+    communication: good
+    note: Microsoft MSRC has some positive recent feedback from researchers who say their submissions were handled well. * Internet-sourced review.
+  - reviewer:
+      github: internet-signal-b
+      display: anonymous
+    experience_date: "2026-04"
+    submitted_at: "2026-04-06"
+    rating: 2
+    response_time: slow
+    triage_quality: poor
+    payment_reliability: poor
+    scope_accuracy: average
+    communication: poor
+    note: Microsoft MSRC also has public criticism around quiet fixes and weak attribution, so the average experience stays mixed. * Internet-sourced review.

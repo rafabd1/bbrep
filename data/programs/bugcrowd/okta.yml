@@ -1,0 +1,19 @@
+﻿schema_version: 1
+program:
+  name: Okta
+  platform: bugcrowd
+  slug: okta
+  program_url: https://bugcrowd.com/okta
+reviews:
+  - reviewer:
+      github: internet-signal
+      display: anonymous
+    experience_date: "2026-01"
+    submitted_at: "2026-01-27"
+    rating: 3
+    response_time: medium
+    triage_quality: average
+    payment_reliability: good
+    scope_accuracy: average
+    communication: good
+    note: Okta has mixed public feedback where initial triage friction can be corrected through escalation and direct engagement. * Internet-sourced review.

@@ -1,0 +1,19 @@
+﻿schema_version: 1
+program:
+  name: Valve
+  platform: hackerone
+  slug: valve
+  program_url: https://hackerone.com/valve
+reviews:
+  - reviewer:
+      github: internet-signal
+      display: anonymous
+    experience_date: "2025-09"
+    submitted_at: "2025-09-21"
+    rating: 4
+    response_time: fast
+    triage_quality: good
+    payment_reliability: good
+    scope_accuracy: good
+    communication: good
+    note: Valve has broadly positive public feedback around triage, communication, and reward handling. * Internet-sourced review.

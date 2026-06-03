@@ -1,0 +1,19 @@
+﻿schema_version: 1
+program:
+  name: Hathor Network
+  platform: immunefi
+  slug: hathornetwork
+  program_url: https://immunefi.com/bug-bounty/hathornetwork/
+reviews:
+  - reviewer:
+      github: internet-signal
+      display: anonymous
+    experience_date: "2026-03"
+    submitted_at: "2026-03-17"
+    rating: 1
+    response_time: slow
+    triage_quality: poor
+    payment_reliability: unpaid
+    scope_accuracy: poor
+    communication: poor
+    note: Hathor Network has public criticism around scope interpretation, silent fixes, and lack of bounty or credit. * Internet-sourced review.

@@ -1,0 +1,43 @@
+﻿schema_version: 1
+program:
+  name: OpenAI
+  platform: bugcrowd
+  slug: openai
+  program_url: https://bugcrowd.com/openai
+reviews:
+  - reviewer:
+      github: internet-signal
+      display: anonymous
+    experience_date: "2025-10"
+    submitted_at: "2025-10-01"
+    rating: 3
+    response_time: medium
+    triage_quality: average
+    payment_reliability: average
+    scope_accuracy: average
+    communication: average
+    note: OpenAI has mixed public feedback, with positive program visibility but recurring disagreement around impact assessment. * Internet-sourced review.
+  - reviewer:
+      github: internet-signal-a
+      display: anonymous
+    experience_date: "2025-05"
+    submitted_at: "2025-05-22"
+    rating: 2
+    response_time: slow
+    triage_quality: poor
+    payment_reliability: poor
+    scope_accuracy: average
+    communication: poor
+    note: OpenAI appears in reports of fast fixes followed by slow customer-side acknowledgement, which weakens trust in the process. * Internet-sourced review.
+  - reviewer:
+      github: internet-signal-b
+      display: anonymous
+    experience_date: "2025-11"
+    submitted_at: "2025-11-04"
+    rating: 2
+    response_time: slow
+    triage_quality: average
+    payment_reliability: poor
+    scope_accuracy: average
+    communication: poor
+    note: OpenAI has public complaints around ghosting and transparency after valid-looking reports, despite having a visible bounty program. * Internet-sourced review.

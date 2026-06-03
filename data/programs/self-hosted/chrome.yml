@@ -1,0 +1,31 @@
+schema_version: 1
+program:
+  name: Chrome
+  platform: self-hosted
+  slug: chrome
+  program_url: https://www.chromium.org/Home/chromium-security/vulnerability-rewards-program/
+reviews:
+  - reviewer:
+      github: internet-signal
+      display: anonymous
+    experience_date: "2026-05"
+    submitted_at: "2026-05-12"
+    rating: 4
+    response_time: medium
+    triage_quality: good
+    payment_reliability: good
+    scope_accuracy: good
+    communication: good
+    note: Chrome/Google VRP feedback is generally strong, though recent reward-table changes make mid-tier expectations less predictable. * Internet-sourced review.
+  - reviewer:
+      github: internet-signal-a
+      display: anonymous
+    experience_date: "2026-05"
+    submitted_at: "2026-05-14"
+    rating: 4
+    response_time: medium
+    triage_quality: good
+    payment_reliability: good
+    scope_accuracy: average
+    communication: good
+    note: Chrome remains high-quality for deep browser research, but changing reward rules can reduce certainty for non-top-tier bugs. * Internet-sourced review.

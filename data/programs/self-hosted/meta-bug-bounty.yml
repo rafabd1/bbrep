@@ -1,0 +1,43 @@
+﻿schema_version: 1
+program:
+  name: Meta Bug Bounty
+  platform: self-hosted
+  slug: meta-bug-bounty
+  program_url: https://bugbounty.meta.com/
+reviews:
+  - reviewer:
+      github: internet-signal
+      display: anonymous
+    experience_date: "2026-03"
+    submitted_at: "2026-03-16"
+    rating: 1
+    response_time: slow
+    triage_quality: poor
+    payment_reliability: poor
+    scope_accuracy: poor
+    communication: poor
+    note: Meta Bug Bounty has public criticism around slow handling, silent fixes, and reports closed without adequate impact recognition. * Internet-sourced review.
+  - reviewer:
+      github: internet-signal-a
+      display: anonymous
+    experience_date: "2026-01"
+    submitted_at: "2026-01-31"
+    rating: 1
+    response_time: ghosted
+    triage_quality: poor
+    payment_reliability: poor
+    scope_accuracy: poor
+    communication: none
+    note: Meta shows repeated public complaints about long waits, silent fixes, and low confidence that valid reports will be handled fairly. * Internet-sourced review.
+  - reviewer:
+      github: internet-signal-b
+      display: anonymous
+    experience_date: "2026-05"
+    submitted_at: "2026-05-06"
+    rating: 1
+    response_time: slow
+    triage_quality: poor
+    payment_reliability: poor
+    scope_accuracy: poor
+    communication: poor
+    note: Meta has recent public feedback from researchers still waiting after weeks or months, making it look like a poor ROI target. * Internet-sourced review.

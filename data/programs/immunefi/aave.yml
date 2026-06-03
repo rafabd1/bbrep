@@ -1,0 +1,19 @@
+schema_version: 1
+program:
+  name: Aave
+  platform: immunefi
+  slug: aave
+  program_url: https://immunefi.com/bug-bounty/aave/
+reviews:
+  - reviewer:
+      github: internet-signal
+      display: anonymous
+    experience_date: "2025-09"
+    submitted_at: "2025-09-09"
+    rating: 3
+    response_time: medium
+    triage_quality: average
+    payment_reliability: average
+    scope_accuracy: good
+    communication: average
+    note: Aave has a major public Immunefi program, but public discussion also questions whether some ecosystem bounty caps match systemic impact. * Internet-sourced review.

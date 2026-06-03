@@ -1,0 +1,43 @@
+﻿schema_version: 1
+program:
+  name: Mozilla
+  platform: hackerone
+  slug: mozilla
+  program_url: https://hackerone.com/mozilla
+reviews:
+  - reviewer:
+      github: internet-signal
+      display: anonymous
+    experience_date: "2025-09"
+    submitted_at: "2025-09-21"
+    rating: 5
+    response_time: fast
+    triage_quality: excellent
+    payment_reliability: excellent
+    scope_accuracy: good
+    communication: excellent
+    note: Mozilla has strong public feedback for quick professional handling and reliable bounty payment. * Internet-sourced review.
+  - reviewer:
+      github: internet-signal-a
+      display: anonymous
+    experience_date: "2026-03"
+    submitted_at: "2026-03-16"
+    rating: 5
+    response_time: fast
+    triage_quality: excellent
+    payment_reliability: excellent
+    scope_accuracy: good
+    communication: excellent
+    note: Mozilla is publicly compared favorably for quick professional response and paying good bounties on browser reports. * Internet-sourced review.
+  - reviewer:
+      github: internet-signal-b
+      display: anonymous
+    experience_date: "2026-04"
+    submitted_at: "2026-04-15"
+    rating: 3
+    response_time: medium
+    triage_quality: average
+    payment_reliability: average
+    scope_accuracy: average
+    communication: average
+    note: Mozilla has at least some mixed recent comments, so it should be treated as strong but not perfect. * Internet-sourced review.
