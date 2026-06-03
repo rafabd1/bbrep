@@ -15,12 +15,13 @@ This repository is public. Do not include private report details, confidential p
 
 ## Add or Update a Program
 
-The primary submission path is the GitHub Issue Form labeled `review-submission`.
+The primary submission path is a GitHub Issue labeled `review-submission`.
 
-1. Open the `Submit a program review` Issue Form.
-2. Fill the structured fields.
-3. GitHub Actions converts the Issue into `data/programs/{platform}/{slug}.yml`.
-4. The action opens or updates a Pull Request for maintainer review.
+1. Fill the review fields on the contribution page.
+2. Copy the generated Issue body.
+3. Create a GitHub Issue with the `review-submission` label.
+4. GitHub Actions converts the Issue into `data/programs/{platform}/{slug}.yml`.
+5. The action opens or updates a Pull Request for maintainer review.
 
 The Issue author becomes the canonical reviewer identity. If the same account submits another review for the same program, the generated Pull Request updates that account's existing review instead of adding a duplicate.
 

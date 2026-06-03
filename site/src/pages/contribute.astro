@@ -16,13 +16,13 @@ const knownPrograms = data.programs.map((program) => ({
       <p class="eyebrow">Contribute</p>
       <h1>Submit a program review</h1>
       <p class="lede">
-        Open the structured Issue Form, fill the public review fields, and wait
-        for maintainer review.
+        Fill the fields, copy the generated Issue body, and create a GitHub Issue
+        with the review-submission label.
       </p>
     </div>
 
     <section class="submission-actions" aria-label="Submission options">
-      <a class="button" href="https://github.com/rafabd1/bbrep/issues/new?template=review-submission.yml">Submit by Issue</a>
+      <a class="button" href="https://github.com/rafabd1/bbrep/issues/new?labels=review-submission&title=Review:%20">Create Issue</a>
     </section>
 
     <section class="generator" data-review-generator data-known-programs={JSON.stringify(knownPrograms)}>
@@ -38,10 +38,6 @@ const knownPrograms = data.programs.map((program) => ({
         <label>
           Program URL
           <input class="field" name="programUrl" type="url" placeholder="https://example.com/security" required />
-        </label>
-        <label>
-          Your GitHub handle
-          <input class="field" name="github" placeholder="octocat" required />
         </label>
         <label>
           Display on site
@@ -126,16 +122,16 @@ const knownPrograms = data.programs.map((program) => ({
       <aside class="generator-output" aria-live="polite">
         <div class="output-meta">
           <span class="pill" data-program-state>New program</span>
-          <code data-output-path>data/programs/self-hosted/example-security-program.yml</code>
+          <code data-output-title>Review: Example Security Program</code>
         </div>
         <p class="muted" data-output-instructions>
-          Use the Issue Form above for submission. This generated model shows how the data will be normalized after maintainer review.
+          Copy this body into a GitHub Issue and keep the review-submission label.
         </p>
         <div class="output-actions">
-          <button class="button button-secondary" type="button" data-copy-yaml>Copy YAML</button>
+          <button class="button button-secondary" type="button" data-copy-issue>Copy Issue Body</button>
           <span class="copy-status" data-copy-status></span>
         </div>
-        <pre class="code-block"><code data-output-yaml></code></pre>
+        <pre class="code-block"><code data-output-issue></code></pre>
       </aside>
     </section>
   </section>
@@ -144,17 +140,16 @@ const knownPrograms = data.programs.map((program) => ({
 <script>
   const root = document.querySelector("[data-review-generator]");
   const form = root?.querySelector("form");
-  const outputPath = root?.querySelector("[data-output-path]");
-  const outputYaml = root?.querySelector("[data-output-yaml]");
+  const outputTitle = root?.querySelector("[data-output-title]");
+  const outputIssue = root?.querySelector("[data-output-issue]");
   const outputState = root?.querySelector("[data-program-state]");
   const outputInstructions = root?.querySelector("[data-output-instructions]");
-  const copyButton = root?.querySelector("[data-copy-yaml]");
+  const copyButton = root?.querySelector("[data-copy-issue]");
   const copyStatus = root?.querySelector("[data-copy-status]");
   const knownPrograms = JSON.parse(root?.getAttribute("data-known-programs") || "[]");
   const knownProgramKeys = new Set(knownPrograms.map((program) => program.key));
 
-  const today = new Date().toISOString().slice(0, 10);
-  const thisMonth = today.slice(0, 7);
+  const thisMonth = new Date().toISOString().slice(0, 7);
 
   function value(name, fallback = "") {
     return form?.querySelector(`[name="${name}"]`)?.value?.trim() || fallback;
@@ -172,10 +167,6 @@ const knownPrograms = data.programs.map((program) => ({
 
   function platformSlug(input) {
     return slugify(input || "self-hosted");
-  }
-
-  function yamlString(input) {
-    return JSON.stringify(input || "");
   }
 
   function inferPlatform(url) {
@@ -203,19 +194,42 @@ const knownPrograms = data.programs.map((program) => ({
     return knownPrograms.find((program) => program.slug === normalizedName) || null;
   }
 
-  function buildReviewYaml(indent = "  - ") {
-    const note = value("note");
-    return `${indent}reviewer:
-      github: ${slugify(value("github", "octocat"))}
-      display: ${value("display", "github")}
-    experience_date: ${yamlString(value("experienceDate", thisMonth))}
-    submitted_at: ${yamlString(today)}
-    rating: ${value("rating", "4")}
-    response_time: ${value("responseTime", "medium")}
-    triage_quality: ${value("triageQuality", "good")}
-    payment_reliability: ${value("paymentReliability", "good")}
-    scope_accuracy: ${value("scopeAccuracy", "good")}
-    communication: ${value("communication", "good")}${note ? `\n    note: ${yamlString(note)}` : ""}`;
+  function buildIssueBody(programName, platform, programUrl) {
+    return `### Program name
+${programName}
+
+### Platform
+${platform}
+
+### Program URL
+${programUrl}
+
+### Display on site
+${value("display", "github")}
+
+### Experience month
+${value("experienceDate", thisMonth)}
+
+### Overall rating
+${value("rating", "4")}
+
+### Response time
+${value("responseTime", "medium")}
+
+### Triage quality
+${value("triageQuality", "good")}
+
+### Payment reliability
+${value("paymentReliability", "good")}
+
+### Scope accuracy
+${value("scopeAccuracy", "good")}
+
+### Communication
+${value("communication", "good")}
+
+### Public note
+${value("note", "")}`;
   }
 
   function updateOutput() {
@@ -230,31 +244,14 @@ const knownPrograms = data.programs.map((program) => ({
     const platform = platformSlug(value("platform", "self-hosted"));
     const slug = slugify(programName);
     const existing = findExistingProgram(platform, slug, programName);
-    const path = existing
-      ? `data/programs/${existing.platform}/${existing.slug}.yml`
-      : `data/programs/${platform}/${slug}.yml`;
     const exists = Boolean(existing) || knownProgramKeys.has(`${platform}/${slug}`);
+    const issueTitle = `Review: ${programName}`;
 
-    const fullYaml = `schema_version: 1
-program:
-  name: ${yamlString(programName)}
-  platform: ${platform}
-  slug: ${slug}
-  program_url: ${yamlString(programUrl)}
-
-reviews:
-${buildReviewYaml()}`;
-
-    const reviewOnly = `# In ${path}, update your existing review or append this item under reviews:
-${buildReviewYaml()}`;
-
-    if (outputPath) outputPath.textContent = path;
-    if (outputYaml) outputYaml.textContent = exists ? reviewOnly : fullYaml;
+    if (outputTitle) outputTitle.textContent = issueTitle;
+    if (outputIssue) outputIssue.textContent = buildIssueBody(programName, platform, programUrl);
     if (outputState) outputState.textContent = exists ? "Existing program" : "New program";
     if (outputInstructions) {
-      outputInstructions.textContent = exists
-        ? "Use the Issue Form above for submission. Existing programs update or append the submitter's review after maintainer review."
-        : "Use the Issue Form above for submission. This generated model shows how the data will be normalized after maintainer review.";
+      outputInstructions.textContent = `Copy this body into an Issue titled "${issueTitle}" and keep the review-submission label.`;
     }
   }
 
@@ -279,7 +276,7 @@ ${buildReviewYaml()}`;
   }
 
   copyButton?.addEventListener("click", async () => {
-    const text = outputYaml?.textContent || "";
+    const text = outputIssue?.textContent || "";
     if (!text) return;
     let copied = false;
     try {
