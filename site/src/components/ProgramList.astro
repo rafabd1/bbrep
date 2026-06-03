@@ -9,6 +9,20 @@ function formatSignal(value) {
   if (value >= 2.5) return "average";
   return "poor";
 }
+
+function ratingTone(value) {
+  if (!value) return "muted";
+  if (value >= 4) return "good";
+  if (value >= 3) return "mid";
+  return "bad";
+}
+
+function ratingSymbol(value) {
+  if (!value) return "-";
+  if (value >= 4) return "▲";
+  if (value >= 3) return "■";
+  return "▼";
+}
 ---
 
 <section class="shell" aria-labelledby="ranking-title">
@@ -49,7 +63,10 @@ function formatSignal(value) {
             </div>
             <span class="badge">{program.platform}</span>
             <div>
-              <div class="rating">{program.averageRating ? program.averageRating.toFixed(2) : "n/a"}</div>
+              <div class={`rating rating-${ratingTone(program.averageRating)}`}>
+                <span aria-hidden="true">{ratingSymbol(program.averageRating)}</span>
+                {program.averageRating ? program.averageRating.toFixed(2) : "n/a"}
+              </div>
               <div class="muted">{program.reviewCount} reviews</div>
             </div>
             <div class="signal">

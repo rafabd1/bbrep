@@ -10,6 +10,20 @@ export function getStaticPaths() {
 }
 
 const { program } = Astro.props;
+
+function ratingTone(value) {
+  if (!value) return "muted";
+  if (value >= 4) return "good";
+  if (value >= 3) return "mid";
+  return "bad";
+}
+
+function ratingSymbol(value) {
+  if (!value) return "-";
+  if (value >= 4) return "▲";
+  if (value >= 3) return "■";
+  return "▼";
+}
 ---
 
 <BaseLayout title={`${program.name} | bbrep`}>
@@ -18,7 +32,10 @@ const { program } = Astro.props;
       <p class="eyebrow">{program.platform}</p>
       <h1>{program.name}</h1>
       <div class="program-meta">
-        <span class="pill">rating {program.averageRating ? program.averageRating.toFixed(2) : "n/a"}</span>
+        <span class={`pill rating rating-${ratingTone(program.averageRating)}`}>
+          <span aria-hidden="true">{ratingSymbol(program.averageRating)}</span>
+          rating {program.averageRating ? program.averageRating.toFixed(2) : "n/a"}
+        </span>
         <span class="pill">{program.reviewCount} reviews</span>
         {program.latestReview && <span class="pill">updated {program.latestReview}</span>}
         <a class="pill" href={program.programUrl}>program</a>
@@ -40,7 +57,10 @@ const { program } = Astro.props;
               </span>
             </div>
             <div class="review-grid">
-              <span class="pill">rating {review.rating}/5</span>
+              <span class={`pill rating rating-${ratingTone(review.rating)}`}>
+                <span aria-hidden="true">{ratingSymbol(review.rating)}</span>
+                rating {review.rating}/5
+              </span>
               <span class="pill">response {review.response_time}</span>
               <span class="pill">triage {review.triage_quality}</span>
               <span class="pill">payment {review.payment_reliability}</span>

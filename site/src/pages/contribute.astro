@@ -22,7 +22,7 @@ const knownPrograms = data.programs.map((program) => ({
     </div>
 
     <section class="submission-actions" aria-label="Submission options">
-      <a class="button" href="https://github.com/rafabd1/bbrep/issues/new?labels=review-submission&title=Review:%20">Create Issue</a>
+      <a class="button" href="https://github.com/rafabd1/bbrep/issues/new?labels=review-submission&title=Review:%20" data-create-issue>Create Issue</a>
     </section>
 
     <section class="generator" data-review-generator data-known-programs={JSON.stringify(knownPrograms)}>
@@ -146,6 +146,7 @@ const knownPrograms = data.programs.map((program) => ({
   const outputInstructions = root?.querySelector("[data-output-instructions]");
   const copyButton = root?.querySelector("[data-copy-issue]");
   const copyStatus = root?.querySelector("[data-copy-status]");
+  const createIssueLink = document.querySelector("[data-create-issue]");
   const knownPrograms = JSON.parse(root?.getAttribute("data-known-programs") || "[]");
   const knownProgramKeys = new Set(knownPrograms.map((program) => program.key));
 
@@ -249,6 +250,13 @@ ${value("note", "")}`;
 
     if (outputTitle) outputTitle.textContent = issueTitle;
     if (outputIssue) outputIssue.textContent = buildIssueBody(programName, platform, programUrl);
+    if (createIssueLink) {
+      const params = new URLSearchParams({
+        labels: "review-submission",
+        title: issueTitle,
+      });
+      createIssueLink.href = `https://github.com/rafabd1/bbrep/issues/new?${params.toString()}`;
+    }
     if (outputState) outputState.textContent = exists ? "Existing program" : "New program";
     if (outputInstructions) {
       outputInstructions.textContent = `Copy this body into an Issue titled "${issueTitle}" and keep the review-submission label.`;

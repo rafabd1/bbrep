@@ -1,0 +1,62 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import data from "../generated/programs.json";
+
+const reviews = data.programs
+  .flatMap((program) =>
+    program.reviews.map((review) => ({
+      ...review,
+      programName: program.name,
+      programPath: program.path,
+      platform: program.platform,
+    })),
+  )
+  .sort((a, b) => String(b.submitted_at).localeCompare(String(a.submitted_at)));
+
+function ratingTone(value) {
+  if (!value) return "muted";
+  if (value >= 4) return "good";
+  if (value >= 3) return "mid";
+  return "bad";
+}
+
+function ratingSymbol(value) {
+  if (!value) return "-";
+  if (value >= 4) return "▲";
+  if (value >= 3) return "■";
+  return "▼";
+}
+---
+
+<BaseLayout title="Feed | bbrep">
+  <section class="shell content">
+    <div class="page-head">
+      <p class="eyebrow">Feed</p>
+      <h1>Latest reviews</h1>
+    </div>
+
+    <div class="feed-list">
+      {
+        reviews.length === 0 ? (
+          <div class="empty">No reviews yet.</div>
+        ) : (
+          reviews.map((review) => (
+            <article class="feed-item">
+              <div class="feed-main">
+                <a class="program-name" href={review.programPath}>{review.programName}</a>
+                <div class="muted">
+                  {review.platform} / {review.reviewerLabel} / {review.submitted_at}
+                </div>
+                {review.note && <p class="review-note">{review.note}</p>}
+              </div>
+              <span class={`pill rating rating-${ratingTone(review.rating)}`}>
+                <span aria-hidden="true">{ratingSymbol(review.rating)}</span>
+                {review.rating}/5
+              </span>
+            </article>
+          ))
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>
