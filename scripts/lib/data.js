@@ -59,6 +59,38 @@ function reviewProblemTags(review) {
     }));
 }
 
+function noteParts(note) {
+  const text = String(note ?? "");
+  const parts = [];
+  let index = 0;
+
+  for (const match of text.matchAll(hashTagPattern)) {
+    if (match.index > index) {
+      parts.push({ type: "text", value: text.slice(index, match.index) });
+    }
+
+    const tag = normalizeProblemTag(match[1]);
+    if (Object.hasOwn(problemTags, tag)) {
+      parts.push({
+        type: "tag",
+        value: match[0],
+        key: tag,
+        emoji: problemTags[tag].emoji,
+        label: problemTags[tag].label,
+      });
+    } else {
+      parts.push({ type: "text", value: match[0] });
+    }
+    index = match.index + match[0].length;
+  }
+
+  if (index < text.length) {
+    parts.push({ type: "text", value: text.slice(index) });
+  }
+
+  return parts;
+}
+
 export async function globPrograms(root) {
   const dataRoot = path.join(root, "data", "programs");
   let platforms = [];
@@ -93,6 +125,7 @@ export function normalizeProgram(record, filePath, root) {
       return {
         ...review,
         problemTags: knownProblemTags,
+        noteParts: noteParts(review.note),
         reviewerLabel:
           review.reviewer?.display === "anonymous" ? "anonymous" : `@${review.reviewer.github}`,
       };

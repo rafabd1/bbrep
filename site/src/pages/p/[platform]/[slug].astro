@@ -80,7 +80,22 @@ function reactionLabel(tag) {
               <span class="pill">payment {review.payment_reliability}</span>
               <span class="pill">scope {review.scope_accuracy}</span>
             </div>
-            {review.note && <p class="review-note">{review.note}</p>}
+            {
+              review.note && (
+                <p class="review-note">
+                  {(review.noteParts?.length ? review.noteParts : [{ type: "text", value: review.note }]).map((part) =>
+                    part.type === "tag" ? (
+                      <>
+                        <span class="note-tag">{part.value}</span>{" "}
+                        <span class="note-tag-emoji" title={part.label} aria-label={part.label}>{part.emoji}</span>
+                      </>
+                    ) : (
+                      part.value
+                    )
+                  )}
+                </p>
+              )
+            }
           </article>
         ))
       }

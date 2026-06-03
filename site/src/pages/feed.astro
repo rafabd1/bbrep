@@ -42,7 +42,22 @@ function ratingSymbol(value) {
                 <div class="muted">
                   {review.platform} / {review.reviewerLabel} / {review.submitted_at}
                 </div>
-                {review.note && <p class="review-note">{review.note}</p>}
+                {
+                  review.note && (
+                    <p class="review-note">
+                      {(review.noteParts?.length ? review.noteParts : [{ type: "text", value: review.note }]).map((part) =>
+                        part.type === "tag" ? (
+                          <>
+                            <span class="note-tag">{part.value}</span>{" "}
+                            <span class="note-tag-emoji" title={part.label} aria-label={part.label}>{part.emoji}</span>
+                          </>
+                        ) : (
+                          part.value
+                        )
+                      )}
+                    </p>
+                  )
+                }
               </div>
               <span class={`pill rating rating-${ratingTone(review.rating)}`}>
                 <span aria-hidden="true">{ratingSymbol(review.rating)}</span>

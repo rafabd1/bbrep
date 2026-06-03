@@ -630,6 +630,16 @@ h2 {
   color: var(--muted);
 }
 
+.note-tag {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.note-tag-emoji {
+  color: var(--ink);
+  font-size: 0.95em;
+}
+
 .footer {
   border-top: 1px solid var(--line);
   padding: 16px;
