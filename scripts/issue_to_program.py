@@ -24,6 +24,7 @@ FIELD_MAP = {
     "program url": "program_url",
     "display on site": "display",
     "experience month": "experience_date",
+    "review month": "experience_date",
     "overall rating": "rating",
     "response time": "response_time",
     "triage quality": "triage_quality",
@@ -214,10 +215,6 @@ def validate_issue_fields(fields: dict[str, str], platform: str) -> int:
         raise ValueError("invalid Issue Form field: platform must normalize to a lowercase slug")
 
     validate_choice(fields, "display", DISPLAY_MODES)
-    experience_date = required(fields, "experience_date")
-    if not is_date(experience_date, "%Y-%m"):
-        raise ValueError("invalid Issue Form field: experience_date must use YYYY-MM")
-
     rating_text = required(fields, "rating")
     try:
         rating = int(rating_text)
@@ -246,14 +243,18 @@ def submitted_date(issue: dict[str, Any]) -> str:
     return dt.date.today().isoformat()
 
 
+def review_month(issue: dict[str, Any]) -> str:
+    return submitted_date(issue)[:7]
+
+
 def build_review(fields: dict[str, str], author: str, issue: dict[str, Any], rating: int) -> dict[str, Any]:
     note = fields.get("note", "").strip()
     review: dict[str, Any] = {
         "reviewer": {
             "github": author,
-        "display": required(fields, "display"),
+            "display": required(fields, "display"),
         },
-        "experience_date": required(fields, "experience_date"),
+        "experience_date": review_month(issue),
         "submitted_at": submitted_date(issue),
         "rating": rating,
         "response_time": required(fields, "response_time"),

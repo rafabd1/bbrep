@@ -30,7 +30,7 @@ const knownPlatforms = [
       <p class="eyebrow">Contribute</p>
       <h1>Submit a program review</h1>
       <p class="lede">
-        Fill the fields, copy the generated Issue body, and create a GitHub Issue
+        Fill the fields, copy the generated issue body, and create a GitHub Issue
         with the review-submission label.
       </p>
     </div>
@@ -52,7 +52,7 @@ const knownPlatforms = [
             {knownPlatforms.map((platform) => <option value={platform} />)}
           </datalist>
         </label>
-        <label>
+        <label class="wide">
           Program URL
           <input class="field" name="programUrl" type="url" pattern="https://.*" title="Use an https URL." placeholder="https://example.com/security" required />
         </label>
@@ -62,10 +62,6 @@ const knownPlatforms = [
             <option value="github">show GitHub handle</option>
             <option value="anonymous">anonymous</option>
           </select>
-        </label>
-        <label>
-          Experience month
-          <input class="field" name="experienceDate" type="month" required />
         </label>
         <label>
           Overall rating
@@ -167,8 +163,6 @@ const knownPlatforms = [
   const knownPrograms = JSON.parse(root?.getAttribute("data-known-programs") || "[]");
   const knownProgramKeys = new Set(knownPrograms.map((program) => program.key));
 
-  const thisMonth = new Date().toISOString().slice(0, 7);
-
   function value(name, fallback = "") {
     return form?.querySelector(`[name="${name}"]`)?.value?.trim() || fallback;
   }
@@ -224,9 +218,6 @@ ${programUrl}
 
 ### Display on site
 ${value("display", "github")}
-
-### Experience month
-${value("experienceDate", thisMonth)}
 
 ### Overall rating
 ${value("rating", "4")}
@@ -291,10 +282,6 @@ ${value("note", "")}`;
     }
   });
 
-  const experienceField = form?.querySelector('[name="experienceDate"]');
-  if (experienceField) {
-    experienceField.value = thisMonth;
-  }
   const platformField = form?.querySelector('[name="platform"]');
   if (platformField && !platformField.value) {
     platformField.value = "self-hosted";

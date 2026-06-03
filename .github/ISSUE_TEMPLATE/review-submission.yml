@@ -1,5 +1,5 @@
 name: Submit a program review
-description: Submit a structured program review without editing YAML by hand.
+description: Submit a program review without editing YAML by hand.
 title: "Review: "
 labels:
   - review-submission
@@ -39,14 +39,6 @@ body:
       options:
         - github
         - anonymous
-    validations:
-      required: true
-  - type: input
-    id: experience_date
-    attributes:
-      label: Experience month
-      description: Use YYYY-MM.
-      placeholder: "2026-06"
     validations:
       required: true
   - type: dropdown

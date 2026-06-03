@@ -2,7 +2,7 @@
 
 bbrep is a community-maintained reputation index for public bug bounty and vulnerability disclosure programs.
 
-The site ranks programs from structured researcher reviews submitted through GitHub Issues.
+The site ranks programs from researcher reviews submitted through GitHub Issues.
 
 ## Access
 

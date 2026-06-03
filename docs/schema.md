@@ -24,7 +24,7 @@ reviews:
   - reviewer:
       github: octocat
       display: github
-    experience_date: "2026-05"
+    experience_date: "2026-06"
     submitted_at: "2026-06-02"
     rating: 4
     response_time: fast
@@ -57,7 +57,7 @@ reviews:
 | --- | --- | --- |
 | `reviewer.github` | yes | GitHub username without `@`; must match the PR author for new or edited reviews |
 | `reviewer.display` | yes | `github`, `anonymous` |
-| `experience_date` | yes | `YYYY-MM` |
+| `experience_date` | yes | `YYYY-MM`, generated from the Issue creation date for Issue submissions |
 | `submitted_at` | yes | `YYYY-MM-DD` |
 | `rating` | yes | integer `1` to `5` |
 | `response_time` | yes | `fast`, `medium`, `slow`, `ghosted`, `unknown` |
