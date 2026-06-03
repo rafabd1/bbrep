@@ -380,7 +380,7 @@ h2 {
 }
 
 .reaction-icon {
-  font-size: 20px;
+  font-size: 17px;
   line-height: 1;
 }
 
@@ -404,9 +404,7 @@ h2 {
   justify-content: flex-end;
 }
 
-.program-header-reactions,
-.review-reactions,
-.feed-reactions {
+.program-header-reactions {
   margin-top: 10px;
 }
 

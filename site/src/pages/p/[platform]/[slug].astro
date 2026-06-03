@@ -80,18 +80,6 @@ function reactionLabel(tag) {
               <span class="pill">payment {review.payment_reliability}</span>
               <span class="pill">scope {review.scope_accuracy}</span>
             </div>
-            {
-              review.problemTags.length > 0 && (
-                <div class="reaction-row review-reactions" aria-label="Known problem tags">
-                  {review.problemTags.map((tag) => (
-                    <span class="reaction" title={tag.label} aria-label={tag.label}>
-                      <span class="reaction-icon" aria-hidden="true">{tag.emoji}</span>
-                      <span class="reaction-count">1x</span>
-                    </span>
-                  ))}
-                </div>
-              )
-            }
             {review.note && <p class="review-note">{review.note}</p>}
           </article>
         ))
