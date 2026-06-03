@@ -4,17 +4,17 @@ Static snapshot generated from `data/programs`.
 
 | Metric | Value |
 | --- | ---: |
-| Programs | 25 |
-| Reviews | 45 |
+| Programs | 26 |
+| Reviews | 46 |
 | Platforms | 5 |
-| Average program rating | 2.83 |
+| Average program rating | 2.84 |
 
 ## Platforms
 
 | Platform | Programs |
 | --- | ---: |
 | bugcrowd | 3 |
-| hackerone | 13 |
+| hackerone | 14 |
 | immunefi | 2 |
 | intigriti | 1 |
 | self-hosted | 6 |
@@ -38,6 +38,7 @@ Static snapshot generated from `data/programs`.
 | Microsoft MSRC | self-hosted | 3 | 3.00 | `data/programs/self-hosted/microsoft-msrc.yml` |
 | Okta | bugcrowd | 1 | 3.00 | `data/programs/bugcrowd/okta.yml` |
 | Uber | hackerone | 1 | 3.00 | `data/programs/hackerone/uber.yml` |
+| Vercel Open Source | hackerone | 1 | 3.00 | `data/programs/hackerone/vercel-open-source.yml` |
 | OpenAI | bugcrowd | 3 | 2.33 | `data/programs/bugcrowd/openai.yml` |
 | Snapchat | hackerone | 4 | 2.25 | `data/programs/hackerone/snapchat.yml` |
 | Amazon Devices and Services | hackerone | 1 | 2.00 | `data/programs/hackerone/amazon-devices.yml` |
