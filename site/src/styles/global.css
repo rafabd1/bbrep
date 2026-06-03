@@ -29,11 +29,19 @@ body {
   min-height: 100vh;
   background: var(--bg);
   color: var(--ink);
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 a {
-  color: var(--accent-strong);
-  text-decoration-color: color-mix(in srgb, var(--accent), transparent 45%);
+  color: var(--ink);
+  text-decoration-color: var(--muted);
   text-underline-offset: 3px;
 }
 
@@ -272,6 +280,7 @@ h2 {
 
 .content {
   padding: 36px 0 64px;
+  flex: 1;
 }
 
 .prose {
@@ -307,28 +316,6 @@ h2 {
 .contribute-head {
   max-width: 760px;
   margin-bottom: 26px;
-}
-
-.submission-steps {
-  margin: 0 0 22px;
-  padding: 18px 0;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-}
-
-.submission-steps ol {
-  margin: 0;
-  padding-left: 22px;
-  color: var(--muted);
-}
-
-.submission-steps li + li {
-  margin-top: 8px;
-}
-
-.submission-steps p {
-  margin: 16px 0 0;
-  color: var(--muted);
 }
 
 .submission-actions {

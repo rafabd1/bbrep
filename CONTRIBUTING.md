@@ -24,55 +24,6 @@ The primary submission path is the GitHub Issue Form labeled `review-submission`
 
 The Issue author becomes the canonical reviewer identity. If the same account submits another review for the same program, the generated Pull Request updates that account's existing review instead of adding a duplicate.
 
-If automation is unavailable or you prefer a manual Pull Request, create or edit:
-
-```text
-data/programs/{platform}/{slug}.yml
-```
-
-Example:
-
-```yaml
-schema_version: 1
-program:
-  name: "Example Security Program"
-  platform: self-hosted
-  slug: example-security
-  program_url: "https://example.com/security"
-
-reviews:
-  - reviewer:
-      github: octocat
-      display: github
-    experience_date: "2026-05"
-    submitted_at: "2026-06-02"
-    rating: 4
-    response_time: fast
-    triage_quality: good
-    payment_reliability: good
-    scope_accuracy: good
-    communication: good
-    note: "Fast triage, clear scope, and payout timeline matched the policy."
-```
-
-Anonymous review:
-
-```yaml
-reviews:
-  - reviewer:
-      github: octocat
-      display: anonymous
-    experience_date: "2026-05"
-    submitted_at: "2026-06-02"
-    rating: 3
-    response_time: medium
-    triage_quality: average
-    payment_reliability: unknown
-    scope_accuracy: good
-    communication: average
-    note: "Scope was clear, but communication required follow-up."
-```
-
 ## Rating Guidance
 
 Use the overall `rating` as a practical researcher experience score:

@@ -8,20 +8,6 @@ const knownPrograms = data.programs.map((program) => ({
   platform: program.platform,
   slug: program.slug,
 }));
-const knownPlatforms = [
-  "hackerone",
-  "bugcrowd",
-  "intigriti",
-  "yeswehack",
-  "immunefi",
-  "code4rena",
-  "sherlock",
-  "cantina",
-  "hackenproof",
-  "hats",
-  "codehawks",
-  "self-hosted",
-];
 ---
 
 <BaseLayout title="Contribute | bbrep">
@@ -30,29 +16,13 @@ const knownPlatforms = [
       <p class="eyebrow">Contribute</p>
       <h1>Submit a program review</h1>
       <p class="lede">
-        Use the Issue Form for the simplest submission. The repository generates
-        the Pull Request automatically for maintainer review.
+        Open the structured Issue Form, fill the public review fields, and wait
+        for maintainer review.
       </p>
     </div>
 
-    <section class="submission-steps" aria-labelledby="steps-title">
-      <h2 id="steps-title">How submission works</h2>
-      <ol>
-        <li>Open the Review Issue Form and submit the structured fields.</li>
-        <li>The review-submission label triggers a generated Pull Request.</li>
-        <li>If the program is new, the generated PR creates the program file.</li>
-        <li>If the program exists, the generated PR appends or updates your review.</li>
-        <li>A maintainer reviews the generated PR before it appears on the site.</li>
-      </ol>
-      <p>
-        Deduplication uses <strong>program + GitHub submitter</strong>. Choosing anonymous only
-        hides your handle on the site; GitHub history still shows the submitting account.
-      </p>
-    </section>
-
     <section class="submission-actions" aria-label="Submission options">
       <a class="button" href="https://github.com/rafabd1/bbrep/issues/new?template=review-submission.yml">Submit by Issue</a>
-      <a class="button button-secondary" href="https://github.com/rafabd1/bbrep/pulls">Manual Pull Request</a>
     </section>
 
     <section class="generator" data-review-generator data-known-programs={JSON.stringify(knownPrograms)}>
@@ -63,10 +33,7 @@ const knownPlatforms = [
         </label>
         <label>
           Platform
-          <input class="field" name="platform" list="platform-options" placeholder="hackerone or custom-platform" required />
-          <datalist id="platform-options">
-            {knownPlatforms.map((platform) => <option value={platform} />)}
-          </datalist>
+          <input class="field" name="platform" placeholder="hackerone, self-hosted, or custom-platform" required />
         </label>
         <label>
           Program URL
@@ -162,7 +129,7 @@ const knownPlatforms = [
           <code data-output-path>data/programs/self-hosted/example-security-program.yml</code>
         </div>
         <p class="muted" data-output-instructions>
-          Create this file in your PR. The program page will be generated after merge.
+          Use the Issue Form above for submission. This generated model shows how the data will be normalized after maintainer review.
         </p>
         <div class="output-actions">
           <button class="button button-secondary" type="button" data-copy-yaml>Copy YAML</button>
@@ -286,8 +253,8 @@ ${buildReviewYaml()}`;
     if (outputState) outputState.textContent = exists ? "Existing program" : "New program";
     if (outputInstructions) {
       outputInstructions.textContent = exists
-        ? "This program already exists. Edit the file below and update your own review if present; otherwise append this item under reviews."
-        : "Create this file in your PR. The program page will be generated after merge.";
+        ? "Use the Issue Form above for submission. Existing programs update or append the submitter's review after maintainer review."
+        : "Use the Issue Form above for submission. This generated model shows how the data will be normalized after maintainer review.";
     }
   }
 
