@@ -462,10 +462,6 @@ h2 {
   margin-top: 24px;
 }
 
-.page-head {
-  margin-bottom: 22px;
-}
-
 .feed-list {
   border: 1px solid var(--line);
   background: var(--panel);

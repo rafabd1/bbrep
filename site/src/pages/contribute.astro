@@ -8,6 +8,20 @@ const knownPrograms = data.programs.map((program) => ({
   platform: program.platform,
   slug: program.slug,
 }));
+const knownPlatforms = [
+  "hackerone",
+  "bugcrowd",
+  "intigriti",
+  "yeswehack",
+  "immunefi",
+  "code4rena",
+  "sherlock",
+  "cantina",
+  "hackenproof",
+  "hats",
+  "codehawks",
+  "self-hosted",
+];
 ---
 
 <BaseLayout title="Contribute | bbrep">
@@ -33,7 +47,10 @@ const knownPrograms = data.programs.map((program) => ({
         </label>
         <label>
           Platform
-          <input class="field" name="platform" placeholder="hackerone, self-hosted, or custom-platform" required />
+          <input class="field" name="platform" list="platform-options" placeholder="hackerone, self-hosted, or custom-platform" required />
+          <datalist id="platform-options">
+            {knownPlatforms.map((platform) => <option value={platform} />)}
+          </datalist>
         </label>
         <label>
           Program URL
