@@ -184,13 +184,41 @@ h2 {
 
 .toolbar {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 10px;
-  margin: 26px 0 14px;
+  gap: 12px;
+  margin: 28px 0 16px;
 }
 
-.toolbar [data-search] {
-  grid-column: span 2;
+.primary-filters {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) minmax(150px, 180px) minmax(150px, 180px);
+  gap: 10px;
+}
+
+.advanced-filters {
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.advanced-filters summary {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  list-style-position: inside;
+}
+
+.advanced-filters[open] summary {
+  color: var(--ink);
+}
+
+.advanced-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(130px, 1fr));
+  gap: 10px;
+  padding: 0 0 12px;
 }
 
 .field {
@@ -243,6 +271,14 @@ h2 {
   border-top: 1px solid var(--line);
   color: var(--ink);
   text-decoration: none;
+}
+
+.program-main {
+  min-width: 0;
+}
+
+.program-rating-block {
+  min-width: 0;
 }
 
 .program-row[hidden],
@@ -556,12 +592,44 @@ h2 {
     grid-template-columns: 1fr;
   }
 
-  .toolbar {
+  .primary-filters {
     grid-template-columns: 1fr;
   }
 
-  .program-row {
+  .advanced-filter-grid {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .program-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "main rating"
+      "platform rating"
+      "response payment";
+    align-items: start;
+    gap: 10px 14px;
+  }
+
+  .program-main {
+    grid-area: main;
+  }
+
+  .program-platform {
+    grid-area: platform;
+  }
+
+  .program-rating-block {
+    grid-area: rating;
+    justify-self: end;
+    text-align: right;
+  }
+
+  .signal-response {
+    grid-area: response;
+  }
+
+  .signal-payment {
+    grid-area: payment;
   }
 
   .review-grid {
@@ -593,11 +661,16 @@ h2 {
   }
 
   .stat-strip,
-  .program-row,
   .feed-item,
   .review-grid,
-  .generator-form {
+  .generator-form,
+  .advanced-filter-grid {
     grid-template-columns: 1fr;
+  }
+
+  .program-row {
+    min-height: 0;
+    padding: 14px 0;
   }
 
   .stat {
@@ -614,8 +687,11 @@ h2 {
     flex-direction: column;
   }
 
-  .toolbar [data-search] {
-    grid-column: auto;
+  .signal {
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
   }
 
   .button {

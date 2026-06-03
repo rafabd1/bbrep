@@ -6,7 +6,11 @@ The site ranks programs from researcher reviews submitted through GitHub Issues.
 
 ## Access
 
-The public site is intended to run on Vercel. Until the first deployment is live, use the GitHub repository:
+Public site:
+
+https://bbrep.vercel.app/
+
+Repository:
 
 https://github.com/rafabd1/bbrep
 
