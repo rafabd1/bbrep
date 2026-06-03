@@ -2,4 +2,6 @@
 
 Static review index generated from `data/programs`.
 
-No reviews yet.
+| Submitted | Program | Platform | Rating | Reviewer | Experience | Note |
+| --- | --- | --- | ---: | --- | --- | --- |
+| 2026-06-03 | test | hackerone | mid 3/5 | @rafabd1 | 2026-06 | good |
