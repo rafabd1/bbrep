@@ -29,3 +29,15 @@ reviews:
     scope_accuracy: good
     communication: good
     note: GitLab is mentioned as a company that appears to care about researcher reports, though the public signal is not unlimited. * Internet-sourced review.
+  - reviewer:
+      github: rafabd1
+      display: github
+    experience_date: "2026-06"
+    submitted_at: "2026-06-03"
+    rating: 4
+    response_time: slow
+    triage_quality: good
+    payment_reliability: good
+    scope_accuracy: average
+    communication: good
+    note: GitLab has quite long triage and payment times, but overall the staff is responsive and fair.
