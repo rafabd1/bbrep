@@ -1,0 +1,19 @@
+schema_version: 1
+program:
+  name: test
+  platform: hackerone
+  slug: test
+  program_url: https://hackerone.com/gitlab
+reviews:
+  - reviewer:
+      github: rafabd1
+      display: github
+    experience_date: 2026-06
+    submitted_at: '2026-06-03'
+    rating: 3
+    response_time: medium
+    triage_quality: good
+    payment_reliability: good
+    scope_accuracy: good
+    communication: good
+    note: good
