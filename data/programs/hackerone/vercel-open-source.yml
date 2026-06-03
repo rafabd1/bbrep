@@ -1,0 +1,19 @@
+schema_version: 1
+program:
+  name: Vercel Open Source
+  platform: hackerone
+  slug: vercel-open-source
+  program_url: https://hackerone.com/vercel-open-source
+reviews:
+  - reviewer:
+      github: rafabd1
+      display: github
+    experience_date: "2026-06"
+    submitted_at: "2026-06-03"
+    rating: 3
+    response_time: slow
+    triage_quality: average
+    payment_reliability: poor
+    scope_accuracy: good
+    communication: average
+    note: Vercel OSS currently has quite long triage times and medium bounties, with a broad scope.
