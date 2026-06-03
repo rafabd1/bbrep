@@ -1,0 +1,352 @@
+"""
+Vercel Open Source Program Data Module
+
+This module provides a structured representation of the Vercel Open Source
+bug bounty program data as published on HackerOne. It includes comprehensive
+type annotations, error handling, logging, and input validation.
+
+Typical usage example:
+    program = VercelOpenSourceProgram.from_dict(data_dict)
+    print(program.program_url)
+"""
+
+from __future__ import annotations
+
+import json
+import logging
+import re
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional, Set, Union
+from urllib.parse import urlparse
+
+# Configure module logger
+logger = logging.getLogger(__name__)
+
+
+class VercelProgramError(Exception):
+    """Base exception for Vercel program data errors."""
+
+
+class ValidationError(VercelProgramError):
+    """Raised when program data validation fails."""
+
+
+class ParsingError(VercelProgramError):
+    """Raised when program data parsing fails."""
+
+
+@dataclass(frozen=True)
+class VercelOpenSourceProgram:
+    """
+    Represents the Vercel Open Source bug bounty program on HackerOne.
+
+    Attributes:
+        program: The name of the bug bounty program.
+        platform: The platform hosting the program.
+        program_url: The URL to the program's HackerOne page.
+        display_on_site: The site where this program is displayed.
+        overall_rating: Numerical rating of the program (1-5).
+        response_time: Categorization of response speed.
+        triage_quality: Quality rating of the triage process.
+        payment_reliability: Reliability rating of payments.
+        scope_accuracy: Accuracy rating of the program scope.
+        communication: Quality rating of communication.
+        public_note: Additional public notes about the program.
+    """
+
+    program: str
+    platform: str
+    program_url: str
+    display_on_site: str
+    overall_rating: int
+    response_time: str
+    triage_quality: str
+    payment_reliability: str
+    scope_accuracy: str
+    communication: str
+    public_note: str
+
+    # Valid rating values for validation
+    _VALID_RATINGS: Set[int] = field(default_factory=lambda: {1, 2, 3, 4, 5}, init=False, repr=False)
+    _VALID_RESPONSE_TIMES: Set[str] = field(
+        default_factory=lambda: {"fast", "average", "slow"}, init=False, repr=False
+    )
+    _VALID_QUALITY_LEVELS: Set[str] = field(
+        default_factory=lambda: {"poor", "average", "good", "excellent"}, init=False, repr=False
+    )
+    _URL_PATTERN: re.Pattern = field(
+        default_factory=lambda: re.compile(
+            r'^https://hackerone\.com/[a-zA-Z0-9_-]+(/[a-zA-Z0-9_-]+)*/?$'
+        ),
+        init=False,
+        repr=False
+    )
+
+    def __post_init__(self) -> None:
+        """Validate all fields after initialization."""
+        self._validate_all()
+
+    def _validate_all(self) -> None:
+        """Run all validation checks on the program data."""
+        try:
+            self._validate_required_fields()
+            self._validate_rating()
+            self._validate_response_time()
+            self._validate_triage_quality()
+            self._validate_payment_reliability()
+            self._validate_scope_accuracy()
+            self._validate_communication()
+            self._validate_url()
+            logger.debug("Program data validation passed for %s", self.program)
+        except ValidationError:
+            logger.error("Validation failed for program %s", self.program)
+            raise
+
+    def _validate_required_fields(self) -> None:
+        """Validate all required string fields are non-empty and of correct type."""
+        required_fields: Dict[str, Any] = {
+            "program": self.program,
+            "platform": self.platform,
+            "program_url": self.program_url,
+            "display_on_site": self.display_on_site,
+            "public_note": self.public_note,
+        }
+        for field_name, value in required_fields.items():
+            if not isinstance(value, str):
+                raise ValidationError(
+                    f"Required field '{field_name}' must be a string, "
+                    f"got: {type(value).__name__}"
+                )
+            if not value.strip():
+                raise ValidationError(
+                    f"Required field '{field_name}' cannot be empty or whitespace-only"
+                )
+
+    def _validate_rating(self) -> None:
+        """Validate the overall rating is within acceptable range."""
+        if not isinstance(self.overall_rating, int):
+            raise ValidationError(
+                f"Overall rating must be an integer, got {type(self.overall_rating).__name__}"
+            )
+        if self.overall_rating not in self._VALID_RATINGS:
+            raise ValidationError(
+                f"Overall rating {self.overall_rating} is not in valid range "
+                f"{sorted(self._VALID_RATINGS)}"
+            )
+
+    def _validate_response_time(self) -> None:
+        """Validate response time is a recognized value."""
+        if not isinstance(self.response_time, str):
+            raise ValidationError(
+                f"Response time must be a string, got {type(self.response_time).__name__}"
+            )
+        if self.response_time not in self._VALID_RESPONSE_TIMES:
+            raise ValidationError(
+                f"Response time '{self.response_time}' is not valid. "
+                f"Must be one of: {', '.join(sorted(self._VALID_RESPONSE_TIMES))}"
+            )
+
+    def _validate_triage_quality(self) -> None:
+        """Validate triage quality is a recognized value."""
+        if not isinstance(self.triage_quality, str):
+            raise ValidationError(
+                f"Triage quality must be a string, got {type(self.triage_quality).__name__}"
+            )
+        if self.triage_quality not in self._VALID_QUALITY_LEVELS:
+            raise ValidationError(
+                f"Triage quality '{self.triage_quality}' is not valid. "
+                f"Must be one of: {', '.join(sorted(self._VALID_QUALITY_LEVELS))}"
+            )
+
+    def _validate_payment_reliability(self) -> None:
+        """Validate payment reliability is a recognized value."""
+        if not isinstance(self.payment_reliability, str):
+            raise ValidationError(
+                f"Payment reliability must be a string, got {type(self.payment_reliability).__name__}"
+            )
+        if self.payment_reliability not in self._VALID_QUALITY_LEVELS:
+            raise ValidationError(
+                f"Payment reliability '{self.payment_reliability}' is not valid. "
+                f"Must be one of: {', '.join(sorted(self._VALID_QUALITY_LEVELS))}"
+            )
+
+    def _validate_scope_accuracy(self) -> None:
+        """Validate scope accuracy is a recognized value."""
+        if not isinstance(self.scope_accuracy, str):
+            raise ValidationError(
+                f"Scope accuracy must be a string, got {type(self.scope_accuracy).__name__}"
+            )
+        if self.scope_accuracy not in self._VALID_QUALITY_LEVELS:
+            raise ValidationError(
+                f"Scope accuracy '{self.scope_accuracy}' is not valid. "
+                f"Must be one of: {', '.join(sorted(self._VALID_QUALITY_LEVELS))}"
+            )
+
+    def _validate_communication(self) -> None:
+        """Validate communication is a recognized value."""
+        if not isinstance(self.communication, str):
+            raise ValidationError(
+                f"Communication must be a string, got {type(self.communication).__name__}"
+            )
+        if self.communication not in self._VALID_QUALITY_LEVELS:
+            raise ValidationError(
+                f"Communication '{self.communication}' is not valid. "
+                f"Must be one of: {', '.join(sorted(self._VALID_QUALITY_LEVELS))}"
+            )
+
+    def _validate_url(self) -> None:
+        """Validate the program URL is a valid HTTPS URL pointing to HackerOne."""
+        if not isinstance(self.program_url, str):
+            raise ValidationError(
+                f"Program URL must be a string, got {type(self.program_url).__name__}"
+            )
+        if not self.program_url.strip():
+            raise ValidationError("Program URL cannot be empty")
+        
+        try:
+            parsed_url = urlparse(self.program_url)
+            if parsed_url.scheme != 'https':
+                raise ValidationError(
+                    f"Program URL must use HTTPS, got scheme: {parsed_url.scheme}"
+                )
+            if not parsed_url.netloc:
+                raise ValidationError("Program URL must have a valid hostname")
+            if 'hackerone.com' not in parsed_url.netloc:
+                logger.warning("Program URL does not contain hackerone.com: %s", self.program_url)
+        except Exception as e:
+            raise ValidationError(f"Invalid program URL: {e}")
+
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Convert the program data to a dictionary.
+
+        Returns:
+            A dictionary representation of the program.
+        """
+        return {
+            "program": self.program,
+            "platform": self.platform,
+            "program_url": self.program_url,
+            "display_on_site": self.display_on_site,
+            "overall_rating": self.overall_rating,
+            "response_time": self.response_time,
+            "triage_quality": self.triage_quality,
+            "payment_reliability": self.payment_reliability,
+            "scope_accuracy": self.scope_accuracy,
+            "communication": self.communication,
+            "public_note": self.public_note,
+        }
+
+    def to_json(self, indent: int = 2, sort_keys: bool = True) -> str:
+        """
+        Convert the program data to a JSON string.
+
+        Args:
+            indent: Number of spaces for JSON indentation.
+            sort_keys: Whether to sort dictionary keys in output.
+
+        Returns:
+            A JSON string representation of the program.
+
+        Raises:
+            ParsingError: If JSON serialization fails.
+        """
+        try:
+            return json.dumps(
+                self.to_dict(),
+                indent=indent,
+                ensure_ascii=False,
+                sort_keys=sort_keys
+            )
+        except (TypeError, ValueError) as e:
+            raise ParsingError(f"Failed to serialize program to JSON: {e}")
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "VercelOpenSourceProgram":
+        """
+        Create a VercelOpenSourceProgram instance from a dictionary.
+
+        Args:
+            data: Dictionary containing program data.
+
+        Returns:
+            A new VercelOpenSourceProgram instance.
+
+        Raises:
+            ParsingError: If the dictionary cannot be parsed into a valid program.
+            ValidationError: If the program data fails validation.
+        """
+        if not isinstance(data, dict):
+            raise ParsingError(
+                f"Input data must be a dictionary, got {type(data).__name__}"
+            )
+
+        try:
+            program = cls(
+                program=str(data.get("program", "")),
+                platform=str(data.get("platform", "")),
+                program_url=str(data.get("program_url", "")),
+                display_on_site=str(data.get("display_on_site", "")),
+                overall_rating=int(data.get("overall_rating", 0)),
+                response_time=str(data.get("response_time", "")),
+                triage_quality=str(data.get("triage_quality", "")),
+                payment_reliability=str(data.get("payment_reliability", "")),
+                scope_accuracy=str(data.get("scope_accuracy", "")),
+                communication=str(data.get("communication", "")),
+                public_note=str(data.get("public_note", "")),
+            )
+            logger.info("Successfully created program instance for %s", program.program)
+            return program
+        except (TypeError, ValueError) as e:
+            raise ParsingError(f"Failed to parse program data: {e}")
+
+    @classmethod
+    def from_json(cls, json_str: str) -> "VercelOpenSourceProgram":
+        """
+        Create a VercelOpenSourceProgram instance from a JSON string.
+
+        Args:
+            json_str: JSON string containing program data.
+
+        Returns:
+            A new VercelOpenSourceProgram instance.
+
+        Raises:
+            ParsingError: If the JSON string cannot be parsed.
+            ValidationError: If the program data fails validation.
+        """
+        if not isinstance(json_str, str):
+            raise ParsingError(
+                f"Input must be a JSON string, got {type(json_str).__name__}"
+            )
+
+        try:
+            data = json.loads(json_str)
+            return cls.from_dict(data)
+        except json.JSONDecodeError as e:
+            raise ParsingError(f"Invalid JSON string: {e}")
+
+    def __str__(self) -> str:
+        """Return a human-readable string representation."""
+        return (
+            f"VercelOpenSourceProgram(program='{self.program}', "
+            f"rating={self.overall_rating}, "
+            f"response_time='{self.response_time}')"
+        )
+
+    def __repr__(self) -> str:
+        """Return an unambiguous string representation."""
+        return (
+            f"VercelOpenSourceProgram("
+            f"program={self.program!r}, "
+            f"platform={self.platform!r}, "
+            f"program_url={self.program_url!r}, "
+            f"display_on_site={self.display_on_site!r}, "
+            f"overall_rating={self.overall_rating!r}, "
+            f"response_time={self.response_time!r}, "
+            f"triage_quality={self.triage_quality!r}, "
+            f"payment_reliability={self.payment_reliability!r}, "
+            f"scope_accuracy={self.scope_accuracy!r}, "
+            f"communication={self.communication!r}, "
+            f"public_note={self.public_note!r})"
+        )
